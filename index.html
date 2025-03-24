@@ -3,78 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>M3U Player with Visualizer</title>
+  <title>M3U Player</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+    
     * {
+      box-sizing: border-box;
       border-radius: 0px;
     }
+    
+    #track-title {
+      margin: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #ddd;
+      font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 20px;
-      text-align: center;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 95vh;
     }
+    
     .player-container {
       width: 500px;
-      margin: 0 auto;
-      background: #222;
-      padding: 10px;
-      /* border: 2px solid #777; */
+      background: #1f1f1f;
+      padding: 14px;
     }
+    
+    .now-playing {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    
     .controls {
       display: flex;
-      justify-content: center;
+      justify-content: space-around;
       align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .fa {
-      font-size: 2em;
-      width: 40px;
-      height: 20px;
-      cursor: pointer;
-    }
-    .now-playing {
-      font-size: 14px;
-      margin: 10px 0;
-    }
-    .playlist {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-      padding: 5px;
-      margin: 16px 0 0 0;
-    }
-    .playlist-item {
-      padding: 5px;
-      cursor: pointer;
-    }
-    .playlist-item:hover {
-      background: #333;
-    }
-    .playing {
-      background: #444;
-      color: #fff;
-    }
-    .visualizer-container {
       margin-top: 15px;
     }
-    canvas {
-      background: #111;
-      width: 100%;
+    
+    .controls button {
+      background: #2d2d2d;
+      border: none;
+      color: #eee;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
+    
+    .controls button:hover {
+      background: #3d3d3d;
+    }
+    
+    .visualizer-container {
+      margin-top: 20px;
+    }
+    
+    canvas {
+      background: #000;
+      width: 100%;
+      display: block;
+    }
+    
+    .playlist {
+      /* margin-top: 10px; */
+      max-height: 200px;
+      overflow: auto;
+      padding: 10px;
+      margin-top: 10px;
+      /* border-top: 1px solid #333; */
+      /* padding-top: 10px; */
+    }
+    
+    .playlist-item {
+      /* padding: 8px 10px; */
+      margin-top: 5px;
+      background: #2d2d2d;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .playlist-item:hover {
+      background: #3d3d3d;
+    }
+    
+    .playing {
+      background: #5c5c5c;
+      font-weight: bold;
+    }
+
+    .fa {
+  font-size: 1.5em;
+}
   </style>
 </head>
 <body>
   <div class="player-container">
     <div class="now-playing">
-      <p id="track-title">No track loaded</p>
+      <p id="track-title">No playlists loaded</p>
     </div>
     <div class="controls">
       <button id="load-web-btn"><i class="fa fa-globe"></i></button>
@@ -139,8 +171,8 @@
       canvasCtx.fillStyle = '#111';
       canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
       
-      const numBars = 16; // reduced number of bars
-      const gap = 3; // increased spacing
+      const numBars = 64; // increased number of bars (was 16)
+      const gap = 2; // increased spacing
       const step = Math.floor(bufferLength / numBars) || 1;
       let barHeights = [];
       
