@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>M3U Player</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+  * {
+    border-radius: 0px;
+  }
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #ddd;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      border-radius: 0px;
+    }
+    .player-container {
+      width: 500px;
+      margin: 0 auto;
+      background: #222;
+      padding: 10px;
+      border: 2px solid #777;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .fa {
+  font-size: 2em;
+  width: 40px;
+  height: 20px;
+  cursor: pointer;
+}
+    .now-playing {
+      font-size: 14px;
+      margin: 10px 0;
+    }
+    .playlist {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      /*background: #222;*/
+      padding: 5px;
+      margin: 16px 0 0 0
+    }
+    .playlist-item {
+      padding: 5px;
+      cursor: pointer;
+    }
+    .playlist-item:hover {
+      background: #333;
+    }
+    .playing {
+      background: #444;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="player-container">
+    <div class="now-playing">
+      <p id="track-title">No track loaded</p>
+    </div>
+    <div class="controls">
+      <button id="load-web-btn"><i class="fa fa-globe"></i></button>
+      <button id="load-local-btn"><i class="fa fa-folder-open"></i></button>
+      <input type="file" id="load-local" accept=".m3u" hidden />
+      <button id="prev"><i class="fa fa-step-backward"></i></button>
+      <button id="play-pause"><i class="fa fa-play"></i></button>
+      <button id="next"><i class="fa fa-step-forward"></i></button>
+      <button id="volume-down"><i class="fa fa-volume-down"></i></button>
+      <span id="volume-level">50%</span>
+      <button id="volume-up"><i class="fa fa-volume-up"></i></button>
+    </div>
+    <div class="playlist" id="playlist"></div>
+  </div>
+  <script>
+    let playlist = [];
+    let currentTrackIndex = 0;
+    let isPlaying = false;
+    const audioElement = new Audio();
+    audioElement.volume = 0.5;
+    
+    function playAudio() {
+      if (!audioElement.src) {
+        loadTrack(currentTrackIndex);
+      }
+      audioElement.play().catch(console.error);
+      isPlaying = true;
+      document.getElementById("play-pause").innerHTML = '<i class="fa fa-pause"></i>';
+      setTimeout(() => {
+        if (!audioElement.paused && !audioElement.currentTime) {
+          loadTrack((currentTrackIndex + 1) % playlist.length);
+        }
+      }, 1000);
+    }
+
+    function loadTrack(index) {
+      if (playlist.length === 0) return;
+      currentTrackIndex = index;
+      audioElement.src = playlist[index].url;
+      document.getElementById("track-title").textContent = `Playing: ${playlist[index].title}`;
+      playAudio();
+      updatePlaylistHighlight();
+    }
+
+    function updatePlaylistHighlight() {
+      const items = document.querySelectorAll('.playlist-item');
+      items.forEach((item, index) => {
+        if (index === currentTrackIndex) {
+          item.classList.add('playing');
+        } else {
+          item.classList.remove('playing');
+        }
+      });
+    }
+
+    document.getElementById("play-pause").addEventListener("click", () => {
+      if (!isPlaying) {
+        playAudio();
+      } else {
+        audioElement.pause();
+        isPlaying = false;
+        document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
+      }
+    });
+
+    document.getElementById("next").addEventListener("click", () => {
+      if (playlist.length > 0) {
+        loadTrack((currentTrackIndex + 1) % playlist.length);
+      }
+    });
+
+    document.getElementById("prev").addEventListener("click", () => {
+      if (playlist.length > 0) {
+        loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
+      }
+    });
+
+    document.getElementById("volume-up").addEventListener("click", () => {
+      if (audioElement.volume < 1) {
+        audioElement.volume = Math.min(1, audioElement.volume + 0.1);
+        document.getElementById("volume-level").textContent = Math.round(audioElement.volume * 100) + "%";
+      }
+    });
+
+    document.getElementById("volume-down").addEventListener("click", () => {
+      if (audioElement.volume > 0) {
+        audioElement.volume = Math.max(0, audioElement.volume - 0.1);
+        document.getElementById("volume-level").textContent = Math.round(audioElement.volume * 100) + "%";
+      }
+    });
+
+    document.getElementById("load-local-btn").addEventListener("click", () => {
+      document.getElementById("load-local").click();
+    });
+
+    document.getElementById("load-local").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const lines = e.target.result.split(/\r?\n/);
+          playlist = [];
+          document.getElementById("playlist").innerHTML = "";
+          lines.forEach((line, index) => {
+            if (line.startsWith("#EXTINF")) {
+              const title = line.split(",")[1] || "Unknown Title";
+              const url = lines[index + 1];
+              if (url) {
+                const trackIndex = playlist.length;
+                playlist.push({ url, title });
+                const entry = document.createElement("div");
+                entry.textContent = title;
+                entry.classList.add("playlist-item");
+                entry.addEventListener("click", () => loadTrack(trackIndex));
+                document.getElementById("playlist").appendChild(entry);
+              }
+            }
+          });
+          if (playlist.length > 0) {
+            loadTrack(0);
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById("load-web-btn").addEventListener("click", () => {
+      const url = prompt("Enter the URL of the M3U file:");
+      if (url) {
+        fetch(url)
+          .then(response => {
+            if (response.ok || response.status === 200 || response.status === 300) {
+              return response.text();
+            } else {
+              throw new Error("Failed to load M3U file");
+            }
+          })
+          .then(data => {
+            const lines = data.split(/\r?\n/);
+            playlist = [];
+            document.getElementById("playlist").innerHTML = "";
+            lines.forEach((line, index) => {
+              if (line.startsWith("#EXTINF")) {
+                const title = line.split(",")[1] || "Unknown Title";
+                const url = lines[index + 1];
+                if (url) {
+                  const trackIndex = playlist.length;
+                  playlist.push({ url, title });
+                  const entry = document.createElement("div");
+                  entry.textContent = title;
+                  entry.classList.add("playlist-item");
+                  entry.addEventListener("click", () => loadTrack(trackIndex));
+                  document.getElementById("playlist").appendChild(entry);
+                }
+              }
+            });
+            if (playlist.length > 0) {
+              loadTrack(0);
+            }
+          })
+          .catch(console.error);
+      }
+    });
+  </script>
+</body>
+</html>
