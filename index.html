@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>M3U Player</title>
+  <title>M3U Player with Visualizer</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-  * {
-    border-radius: 0px;
-  }
+    * {
+      border-radius: 0px;
+    }
     body {
       font-family: Arial, sans-serif;
       background: #111;
@@ -16,14 +16,13 @@
       margin: 0;
       padding: 20px;
       text-align: center;
-      border-radius: 0px;
     }
     .player-container {
       width: 500px;
       margin: 0 auto;
       background: #222;
       padding: 10px;
-      border: 2px solid #777;
+      /* border: 2px solid #777; */
     }
     .controls {
       display: flex;
@@ -33,11 +32,11 @@
       margin-top: 10px;
     }
     .fa {
-  font-size: 2em;
-  width: 40px;
-  height: 20px;
-  cursor: pointer;
-}
+      font-size: 2em;
+      width: 40px;
+      height: 20px;
+      cursor: pointer;
+    }
     .now-playing {
       font-size: 14px;
       margin: 10px 0;
@@ -49,9 +48,8 @@
       text-align: left;
       max-height: 200px;
       overflow-y: auto;
-      /*background: #222;*/
       padding: 5px;
-      margin: 16px 0 0 0
+      margin: 16px 0 0 0;
     }
     .playlist-item {
       padding: 5px;
@@ -63,6 +61,13 @@
     .playing {
       background: #444;
       color: #fff;
+    }
+    .visualizer-container {
+      margin-top: 15px;
+    }
+    canvas {
+      background: #111;
+      width: 100%;
     }
   </style>
 </head>
@@ -82,6 +87,9 @@
       <span id="volume-level">50%</span>
       <button id="volume-up"><i class="fa fa-volume-up"></i></button>
     </div>
+    <div class="visualizer-container">
+      <canvas id="visualizer" width="480" height="100"></canvas>
+    </div>
     <div class="playlist" id="playlist"></div>
   </div>
   <script>
@@ -89,11 +97,100 @@
     let currentTrackIndex = 0;
     let isPlaying = false;
     const audioElement = new Audio();
+    audioElement.crossOrigin = "anonymous";
     audioElement.volume = 0.5;
+    
+    // Setup Web Audio API for visualizer
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Create a MediaElementAudioSourceNode to use the audio stream
+    const source = audioCtx.createMediaElementSource(audioElement);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    
+    // New helper function to return gradient color
+    function getGradientColor(ratio) {
+      let r, g, b;
+      if (ratio <= 0.5) {
+        // interpolate from yellow (255,255,0) to magenta (255,0,255)
+        const t = ratio / 0.5;
+        r = 255;
+        g = Math.round(255 * (1 - t));
+        b = Math.round(255 * t);
+      } else {
+        // interpolate from magenta (255,0,255) to cyan (0,255,255)
+        const t = (ratio - 0.5) / 0.5;
+        r = Math.round(255 * (1 - t));
+        g = Math.round(255 * t);
+        b = 255;
+      }
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+    
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+      analyser.getByteFrequencyData(dataArray);
+      canvasCtx.fillStyle = '#111';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const numBars = 16; // reduced number of bars
+      const gap = 3; // increased spacing
+      const step = Math.floor(bufferLength / numBars) || 1;
+      let barHeights = [];
+      
+      // Compute each bar's height
+      for (let i = 0; i < numBars; i++) {
+        let sum = 0;
+        for (let j = 0; j < step; j++){
+          sum += dataArray[i * step + j];
+        }
+        let h = Math.min(sum / step / 2, canvas.height);
+        barHeights.push(h);
+      }
+      
+      // Determine active bars (height > 1)
+      let activeIndices = [];
+      barHeights.forEach((h, i) => { if (h > 1) activeIndices.push(i); });
+      
+      if (activeIndices.length > 0 && activeIndices.length < numBars) {
+        // Recalculate width for active bars only
+        const activeCount = activeIndices.length;
+        const activeBarWidth = (canvas.width - gap * (activeCount - 1)) / activeCount;
+        let currentX = 0;
+        activeIndices.forEach((origIndex, orderIndex) => {
+          const ratio = activeCount > 1 ? orderIndex / (activeCount - 1) : 0;
+          canvasCtx.fillStyle = getGradientColor(ratio);
+          canvasCtx.fillRect(currentX, canvas.height - barHeights[origIndex], activeBarWidth, barHeights[origIndex]);
+          currentX += activeBarWidth + gap;
+        });
+      } else {
+        // Draw all bars with default width and spacing
+        const barWidth = (canvas.width - gap * (numBars - 1)) / numBars;
+        let x = 0;
+        for (let i = 0; i < numBars; i++) {
+          const ratio = numBars > 1 ? i / (numBars - 1) : 0;
+          canvasCtx.fillStyle = getGradientColor(ratio);
+          canvasCtx.fillRect(x, canvas.height - barHeights[i], barWidth, barHeights[i]);
+          x += barWidth + gap;
+        }
+      }
+    }
+    
+    drawVisualizer();
     
     function playAudio() {
       if (!audioElement.src) {
         loadTrack(currentTrackIndex);
+      }
+      // Ensure AudioContext is resumed (required by some browsers)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
       audioElement.play().catch(console.error);
       isPlaying = true;
@@ -104,7 +201,7 @@
         }
       }, 1000);
     }
-
+    
     function loadTrack(index) {
       if (playlist.length === 0) return;
       currentTrackIndex = index;
@@ -113,7 +210,7 @@
       playAudio();
       updatePlaylistHighlight();
     }
-
+    
     function updatePlaylistHighlight() {
       const items = document.querySelectorAll('.playlist-item');
       items.forEach((item, index) => {
@@ -124,7 +221,7 @@
         }
       });
     }
-
+    
     document.getElementById("play-pause").addEventListener("click", () => {
       if (!isPlaying) {
         playAudio();
@@ -134,37 +231,37 @@
         document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
       }
     });
-
+    
     document.getElementById("next").addEventListener("click", () => {
       if (playlist.length > 0) {
         loadTrack((currentTrackIndex + 1) % playlist.length);
       }
     });
-
+    
     document.getElementById("prev").addEventListener("click", () => {
       if (playlist.length > 0) {
         loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
       }
     });
-
+    
     document.getElementById("volume-up").addEventListener("click", () => {
       if (audioElement.volume < 1) {
         audioElement.volume = Math.min(1, audioElement.volume + 0.1);
         document.getElementById("volume-level").textContent = Math.round(audioElement.volume * 100) + "%";
       }
     });
-
+    
     document.getElementById("volume-down").addEventListener("click", () => {
       if (audioElement.volume > 0) {
         audioElement.volume = Math.max(0, audioElement.volume - 0.1);
         document.getElementById("volume-level").textContent = Math.round(audioElement.volume * 100) + "%";
       }
     });
-
+    
     document.getElementById("load-local-btn").addEventListener("click", () => {
       document.getElementById("load-local").click();
     });
-
+    
     document.getElementById("load-local").addEventListener("change", async (event) => {
       const file = event.target.files[0];
       if (file) {
@@ -181,7 +278,7 @@
                 const trackIndex = playlist.length;
                 playlist.push({ url, title });
                 const entry = document.createElement("div");
-                entry.textContent = title;
+                entry.textContent = `${trackIndex + 1}. ${title}`; // Modified: add numbering
                 entry.classList.add("playlist-item");
                 entry.addEventListener("click", () => loadTrack(trackIndex));
                 document.getElementById("playlist").appendChild(entry);
@@ -195,7 +292,7 @@
         reader.readAsText(file);
       }
     });
-
+    
     document.getElementById("load-web-btn").addEventListener("click", () => {
       const url = prompt("Enter the URL of the M3U file:");
       if (url) {
@@ -219,7 +316,7 @@
                   const trackIndex = playlist.length;
                   playlist.push({ url, title });
                   const entry = document.createElement("div");
-                  entry.textContent = title;
+                  entry.textContent = `${trackIndex + 1}. ${title}`; // Modified: add numbering
                   entry.classList.add("playlist-item");
                   entry.addEventListener("click", () => loadTrack(trackIndex));
                   document.getElementById("playlist").appendChild(entry);
