@@ -5,12 +5,12 @@ wrestle with artifical dumbness (chat gpt 4o) for a few hours to create a m3u ra
 * automatic checking of stream links and skipping unresponsive ones after 1 second of them not playing
 * very basic audio normalization feature, most music should play at the same level of loudness
 * basic playlist window that shows currently playing stream and can be clicked to play that spicifc entry
-* add a basic visualizer, the bar numbers and width dynamically lower and increases based on the playing music
+* a basic visualizer, the bar numbers and width dynamically lower and increases based on the playing music
+* defualt set 10 of streams that are automatically loaded in by
 
 things i want to add, eventually:
 
 * better styling for everything
-* defualt set of streams that are loaded in automatically
 * actual design of a proper audio player after the functionality is there
 
 if you are on a chromium based web browser (chrome, vivaldi, opera, edge etc …) you are not able to listen to the most of the streams, here is an explanation from [chrome support](https://support.google.com/chrome/thread/29505473?hl=en&msgid=29673696) which tells you why this happens and how to fix it

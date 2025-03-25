@@ -99,8 +99,22 @@
     }
 
     .fa {
-  font-size: 1.5em;
-}
+      font-size: 1.5em;
+    }
+    /* Replace .hidden with .invisible to preserve layout space */
+    .invisible {
+      visibility: hidden;
+    }
+    #volume-level {
+      display: inline-block;
+      width: 50px; /* fixed width to reserve space for "100%" */
+      text-align: center;
+    }
+    .volume-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px; /* adjust gap as desired */
+    }
   </style>
 </head>
 <body>
@@ -115,9 +129,11 @@
       <button id="prev"><i class="fa fa-step-backward"></i></button>
       <button id="play-pause"><i class="fa fa-play"></i></button>
       <button id="next"><i class="fa fa-step-forward"></i></button>
-      <button id="volume-down"><i class="fa fa-volume-down"></i></button>
-      <span id="volume-level">50%</span>
-      <button id="volume-up"><i class="fa fa-volume-up"></i></button>
+      <div class="volume-controls">
+        <button id="volume-down"><i class="fa fa-volume-down"></i></button>
+        <span id="volume-level">50%</span>
+        <button id="volume-up"><i class="fa fa-volume-up"></i></button>
+      </div>
     </div>
     <div class="visualizer-container">
       <canvas id="visualizer" width="480" height="100"></canvas>
@@ -125,7 +141,18 @@
     <div class="playlist" id="playlist"></div>
   </div>
   <script>
-    let playlist = [];
+    let playlist = [
+      { url: 'http://stream.dancewave.online:8080/dance.mp3', title: 'Dance Wave!' },
+      { url: 'http://80.251.40.4:8089/stream/1/', title: 'ANKARA UNİ RADYOSU' },
+      { url: 'http://51.89.148.171:8022/stream/1/', title: 'Dance UK Radio danceradiouk' },
+      { url: 'http://hirschmilch.de:7000/stream/4/', title: 'Hirschmilch Chillout' },
+      { url: 'http://listen.rusongs.ru/ru-mp3-128', title: 'Russkie Pesni' },
+      { url: 'http://uk2.streamingpulse.com:8010/stream/1/', title: 'Venice Classic Radio Auditorium' },
+      { url: 'http://b.fmradiomanele.ro:8044/stream/1/', title: 'Radio Manele Romania' },
+      { url: 'http://stream.funradio.sk:8000/fun128.mp3', title: 'FUN Radio Live' },
+      { url: 'http://64.95.243.43:8002/stream/1/', title: 'BEST SMOOTH JAZZ' },
+      { url: 'http://streaming.hdserver.biz:9300/stream/1/', title: 'LA SUEGRA FM' }
+    ];
     let currentTrackIndex = 0;
     let isPlaying = false;
     const audioElement = new Audio();
@@ -226,6 +253,8 @@
       }
       audioElement.play().catch(console.error);
       isPlaying = true;
+      // Show now-playing text by removing invisibility
+      document.querySelector(".now-playing").classList.remove("invisible");
       document.getElementById("play-pause").innerHTML = '<i class="fa fa-pause"></i>';
       setTimeout(() => {
         if (!audioElement.paused && !audioElement.currentTime) {
@@ -234,13 +263,19 @@
       }, 1000);
     }
     
-    function loadTrack(index) {
+    function loadTrack(index, autoplay = true) {
       if (playlist.length === 0) return;
       currentTrackIndex = index;
       audioElement.src = playlist[index].url;
       document.getElementById("track-title").textContent = `Playing: ${playlist[index].title}`;
-      playAudio();
       updatePlaylistHighlight();
+      if (autoplay) {
+        playAudio();
+      } else {
+        document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
+        // Hide now-playing text but reserve space
+        document.querySelector(".now-playing").classList.add("invisible");
+      }
     }
     
     function updatePlaylistHighlight() {
@@ -261,6 +296,8 @@
         audioElement.pause();
         isPlaying = false;
         document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
+        // Hide now-playing text while preserving layout space
+        document.querySelector(".now-playing").classList.add("invisible");
       }
     });
     
@@ -360,6 +397,21 @@
             }
           })
           .catch(console.error);
+      }
+    });
+
+    // Initialize playlist display and set default track (without autoplay)
+    document.addEventListener("DOMContentLoaded", () => {
+      const playlistContainer = document.getElementById("playlist");
+      playlist.forEach((track, index) => {
+        const entry = document.createElement("div");
+        entry.textContent = `${index + 1}. ${track.title}`;
+        entry.classList.add("playlist-item");
+        entry.addEventListener("click", () => loadTrack(index));
+        playlistContainer.appendChild(entry);
+      });
+      if (playlist.length > 0) {
+        loadTrack(0, false);
       }
     });
   </script>
