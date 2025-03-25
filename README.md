@@ -20,3 +20,5 @@ if you are on a chromium based web browser (chrome, vivaldi, opera, edge etc …
 *   Open Chrome (or other chromium web browsers), go to the website and then click on the padlock icon to the left of the URL box and then from the drop down menu select the 'Site Settings' option, you can then scroll down to the 'Insecure content' option at the bottom of the page and select 'Allow', this will create an exception for the website and allow you to continue using the player as before.
 
 github pages are static, meaning this code runs on your device, you can just make a local copy of this page if you don't want to always open this page
+
+this repo is made primarily as an auxiliary resource for my [m3u-radio-music-playlists](https://github.com/junguler/m3u-radio-music-playlists) repo and it's going to be linked there as well
