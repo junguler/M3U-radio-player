@@ -60,6 +60,7 @@
       padding: 10px 20px;
       cursor: pointer;
       transition: background 0.3s ease;
+      margin-top: 10px;
       margin-bottom: 10px;
     }
     
@@ -179,9 +180,6 @@
 </head>
 <body>
   <div class="player-container">
-    <div class="now-playing">
-      <p id="track-title">No playlists loaded</p>
-    </div>
     <div class="controls">
       <button id="load-web-btn"><i class="fa fa-globe"></i></button>
       <button id="load-local-btn"><i class="fa fa-folder-open"></i></button>
@@ -191,7 +189,7 @@
       <button id="next"><i class="fa fa-step-forward"></i></button>
       <div class="volume-controls">
         <button id="volume-down"><i class="fa fa-volume-down"></i></button>
-        <!-- Modified: changed span to button -->
+        <!-- Removed: copy-info button from here -->
         <button id="volume-level-btn">50%</button>
         <button id="volume-up"><i class="fa fa-volume-up"></i></button>
       </div>
@@ -205,6 +203,17 @@
       <span id="total-time">00:00</span>
     </div>
     <div class="playlist" id="playlist"></div>
+    <!-- Added new stream info box under the playlist -->
+    <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #fff; padding:4px 8px; margin-top:10px; line-height:1.2em;">
+      <div class="stream-details">
+        <div id="stream-title">Title: </div>
+        <div id="stream-url">URL: </div>
+      </div>
+      <!-- Modified: changed copy link to a button with font awesome copy icon, smaller and with 2px margins -->
+      <button id="copy-info-btn" style="background:#2d2d2d; border:none; color:#eee; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
+        <i class="fa fa-copy"></i>
+      </button>
+    </div>
     <div class="visualizer-container">
       <canvas id="visualizer" width="480" height="100"></canvas>
     </div>
@@ -334,8 +343,6 @@
       }
       audioElement.play().catch(console.error);
       isPlaying = true;
-      // Show now-playing text by removing invisibility
-      document.querySelector(".now-playing").classList.remove("invisible");
       document.getElementById("play-pause").innerHTML = '<i class="fa fa-pause"></i>';
       setTimeout(() => {
         if (!audioElement.paused && !audioElement.currentTime) {
@@ -348,22 +355,38 @@
       if (playlist.length === 0) return;
       currentTrackIndex = index;
       audioElement.src = playlist[index].url;
-      document.getElementById("track-title").textContent = `Playing: ${playlist[index].title}`;
+      document.getElementById("stream-title").textContent = "Title: " + playlist[index].title;
+      document.getElementById("stream-url").textContent = "URL: " + playlist[index].url;
       updatePlaylistHighlight();
       if (autoplay) {
         playAudio();
       } else {
         document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
-        // Hide now-playing text but reserve space
-        document.querySelector(".now-playing").classList.add("invisible");
       }
     }
     
+    // Global variable to track previous index
+    let prevTrackIndex = 0;
+    
+    // Updated updatePlaylistHighlight() to scroll extra only when current item is near top or bottom of the view.
     function updatePlaylistHighlight() {
+      const container = document.getElementById("playlist");
+      const containerRect = container.getBoundingClientRect();
       const items = document.querySelectorAll('.playlist-item');
+      const threshold = 50; // pixels from edge when extra scrolling is triggered
       items.forEach((item, index) => {
         if (index === currentTrackIndex) {
           item.classList.add('playing');
+          const itemRect = item.getBoundingClientRect();
+          if (itemRect.bottom > containerRect.bottom - threshold) {
+            // If near the container's bottom edge, scroll extra downwards.
+            const extra = itemRect.bottom - containerRect.bottom + threshold;
+            container.scrollBy({ top: extra, behavior: 'smooth' });
+          } else if (itemRect.top < containerRect.top + threshold) {
+            // If near the container's top edge, scroll extra upwards.
+            const extra = itemRect.top - containerRect.top - threshold;
+            container.scrollBy({ top: extra, behavior: 'smooth' });
+          }
         } else {
           item.classList.remove('playing');
         }
@@ -377,8 +400,6 @@
         audioElement.pause();
         isPlaying = false;
         document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
-        // Hide now-playing text while preserving layout space
-        document.querySelector(".now-playing").classList.add("invisible");
       }
     });
     
@@ -422,6 +443,27 @@
       } else {
         document.getElementById("volume-level-btn").innerHTML =
           Math.round(audioElement.volume * 100) + "%";
+      }
+    });
+    
+    // New: Copy stream info using new copy link
+    document.getElementById("copy-info-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      const titleText = document.getElementById("stream-title").textContent;
+      const urlText = document.getElementById("stream-url").textContent;
+      const textToCopy = titleText + "\n" + urlText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => { console.log("Stream info copied to clipboard."); })
+          .catch(err => console.error("Copy failed:", err));
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        console.log("Stream info copied to clipboard (fallback).");
       }
     });
     

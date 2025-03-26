@@ -8,6 +8,8 @@ wrestle with chatgpt for a several hours to create a m3u radio player, this page
 * a basic visualizer, the bar numbers and width dynamically lower and increases based on the playing music
 * defualt set 10 of streams that are automatically loaded in by
 * add a timeline with elapsed duration at the left and cached time at the right
+* make playlist entries always scroll to view
+* add a stream info box with optional button copy current stream's info to clipboard
 
 things i want to add, eventually:
 
