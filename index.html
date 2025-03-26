@@ -149,6 +149,32 @@
       align-items: center;
       justify-content: center;
     }
+    /* New timeline styles */
+    .timeline {
+      display: flex;
+      align-items: center;
+      /* margin-top: 5px; */
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .timeline span {
+      width: 50px;
+      text-align: center;
+      /* border: white solid 1px; */
+    }
+    .timeline-bar {
+      flex: 1;
+      height: 6px;
+      margin: 0 8px;
+      background: #555;
+      position: relative;
+      cursor: pointer;
+    }
+    .timeline-progress {
+      height: 100%;
+      background: #ccc;
+      width: 0%;
+    }
   </style>
 </head>
 <body>
@@ -169,6 +195,14 @@
         <button id="volume-level-btn">50%</button>
         <button id="volume-up"><i class="fa fa-volume-up"></i></button>
       </div>
+    </div>
+    <!-- Moved timeline below media buttons -->
+    <div class="timeline">
+      <span id="elapsed-time">00:00</span>
+      <div class="timeline-bar">
+        <div class="timeline-progress"></div>
+      </div>
+      <span id="total-time">00:00</span>
     </div>
     <div class="playlist" id="playlist"></div>
     <div class="visualizer-container">
@@ -227,52 +261,63 @@
       return 'rgb(' + r + ',' + g + ',' + b + ')';
     }
     
+    const numBars = 32; // optimized number of bars
+    const gap = 4;
+    const binSize = bufferLength / numBars;
+    // Precompute bar boundaries once for all frames
+    const boundaries = [];
+    for (let i = 0; i <= numBars; i++) {
+      boundaries[i] = Math.floor(i * binSize);
+    }
+    
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
       analyser.getByteFrequencyData(dataArray);
-      // Changed background color to #1f1f1f
+      
+      const w = canvas.width, h = canvas.height;
+      // Clear canvas
       canvasCtx.fillStyle = '#1f1f1f';
-      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.fillRect(0, 0, w, h);
       
-      const numBars = 64; // increased number of bars (was 16)
-      const gap = 2; // increased spacing
-      const step = Math.floor(bufferLength / numBars) || 1;
-      let barHeights = [];
-      
-      // Compute each bar's height
+      // Compute bar heights using cached boundaries
+      const barHeights = new Array(numBars);
       for (let i = 0; i < numBars; i++) {
+        const start = boundaries[i],
+              end = boundaries[i + 1];
         let sum = 0;
-        for (let j = 0; j < step; j++){
-          sum += dataArray[i * step + j];
+        for (let j = start; j < end; j++) {
+          sum += dataArray[j];
         }
-        let h = Math.min(sum / step / 2, canvas.height);
-        barHeights.push(h);
+        const avg = (end - start) ? (sum / (end - start)) : 0;
+        barHeights[i] = Math.min(avg / 2, h);
       }
       
-      // Determine active bars (height > 1)
-      let activeIndices = [];
-      barHeights.forEach((h, i) => { if (h > 1) activeIndices.push(i); });
+      // Determine active bars (those with height > 1)
+      const activeIndices = [];
+      for (let i = 0; i < numBars; i++) {
+        if (barHeights[i] > 1) activeIndices.push(i);
+      }
       
       if (activeIndices.length > 0 && activeIndices.length < numBars) {
-        // Recalculate width for active bars only
-        const activeCount = activeIndices.length;
-        const activeBarWidth = (canvas.width - gap * (activeCount - 1)) / activeCount;
+        const activeCount = activeIndices.length,
+              activeBarWidth = (w - gap * (activeCount - 1)) / activeCount;
         let currentX = 0;
-        activeIndices.forEach((origIndex, orderIndex) => {
-          const ratio = activeCount > 1 ? orderIndex / (activeCount - 1) : 0;
-          canvasCtx.fillStyle = getGradientColor(ratio);
-          canvasCtx.fillRect(currentX, canvas.height - barHeights[origIndex], activeBarWidth, barHeights[origIndex]);
+        for (let k = 0; k < activeCount; k++) {
+          const index = activeIndices[k],
+                ratio = activeCount > 1 ? k / (activeCount - 1) : 0,
+                color = getGradientColor(ratio);
+          canvasCtx.fillStyle = color;
+          canvasCtx.fillRect(currentX, h - barHeights[index], activeBarWidth, barHeights[index]);
           currentX += activeBarWidth + gap;
-        });
+        }
       } else {
-        // Draw all bars with default width and spacing
-        const barWidth = (canvas.width - gap * (numBars - 1)) / numBars;
-        let x = 0;
+        const defaultBarWidth = (w - gap * (numBars - 1)) / numBars;
         for (let i = 0; i < numBars; i++) {
-          const ratio = numBars > 1 ? i / (numBars - 1) : 0;
-          canvasCtx.fillStyle = getGradientColor(ratio);
-          canvasCtx.fillRect(x, canvas.height - barHeights[i], barWidth, barHeights[i]);
-          x += barWidth + gap;
+          const ratio = numBars > 1 ? i / (numBars - 1) : 0,
+                color = getGradientColor(ratio),
+                x = i * (defaultBarWidth + gap);
+          canvasCtx.fillStyle = color;
+          canvasCtx.fillRect(x, h - barHeights[i], defaultBarWidth, barHeights[i]);
         }
       }
     }
@@ -466,6 +511,59 @@
       if (playlist.length > 0) {
         loadTrack(0, false);
       }
+    });
+
+    // New helper function to format time mm:ss
+    function formatTime(time) {
+      const minutes = Math.floor(time / 60);
+      const seconds = Math.floor(time % 60);
+      return (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    }
+    
+    // New helper function to get cached duration
+    function getCachedDuration() {
+      return audioElement.buffered.length 
+        ? audioElement.buffered.end(audioElement.buffered.length - 1) 
+        : 0;
+    }
+
+    // Update timeline using cached duration with a minus sign for remaining time
+    audioElement.addEventListener("timeupdate", () => {
+      const current = audioElement.currentTime;
+      const cachedDuration = getCachedDuration();
+      document.getElementById("elapsed-time").textContent = formatTime(current);
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+        const percent = (current / cachedDuration) * 100;
+        document.querySelector(".timeline-progress").style.width = percent + "%";
+      }
+    });
+    
+    // Update timeline on progress to display remaining time
+    audioElement.addEventListener("progress", () => {
+      const cachedDuration = getCachedDuration();
+      const current = audioElement.currentTime;
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+      }
+    });
+    
+    // Update loadedmetadata to initialize remaining time display
+    audioElement.addEventListener("loadedmetadata", () => {
+      const cachedDuration = getCachedDuration();
+      if (cachedDuration) {
+        document.getElementById("total-time").textContent = '-' + formatTime(cachedDuration - audioElement.currentTime);
+      }
+    });
+    
+    // Allow seeking based on cached duration
+    document.querySelector(".timeline-bar").addEventListener("click", (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const cachedDuration = getCachedDuration();
+      audioElement.currentTime = (clickX / rect.width) * cachedDuration;
     });
   </script>
 </body>

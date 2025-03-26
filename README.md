@@ -1,5 +1,5 @@
 # M3U-radio-player
-wrestle with artifical dumbness (chat gpt 4o) for a few hours to create a m3u radio player, this page is not fully featured yet, but here are the things that currently does:
+wrestle with chatgpt for a several hours to create a m3u radio player, this page is not fully featured yet, but here are the things that currently does:
 
 * local and/or online playlist loading support
 * automatic checking of stream links and skipping unresponsive ones after 1 second of them not playing
@@ -7,6 +7,7 @@ wrestle with artifical dumbness (chat gpt 4o) for a few hours to create a m3u ra
 * basic playlist window that shows currently playing stream and can be clicked to play that spicifc entry
 * a basic visualizer, the bar numbers and width dynamically lower and increases based on the playing music
 * defualt set 10 of streams that are automatically loaded in by
+* add a timeline with elapsed duration at the left and cached time at the right
 
 things i want to add, eventually:
 
