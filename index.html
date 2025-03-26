@@ -203,13 +203,12 @@
       <span id="total-time">00:00</span>
     </div>
     <div class="playlist" id="playlist"></div>
-    <!-- Added new stream info box under the playlist -->
+    <!-- Modified stream info box -->
     <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #fff; padding:4px 8px; margin-top:10px; line-height:1.2em;">
-      <div class="stream-details">
-        <div id="stream-title">Title: </div>
-        <div id="stream-url">URL: </div>
+      <div class="stream-details" style="flex:1; overflow:hidden; margin-right:8px;">
+        <div id="stream-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Title: </div>
+        <div id="stream-url" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">URL: </div>
       </div>
-      <!-- Modified: changed copy link to a button with font awesome copy icon, smaller and with 2px margins -->
       <button id="copy-info-btn" style="background:#2d2d2d; border:none; color:#eee; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
         <i class="fa fa-copy"></i>
       </button>
