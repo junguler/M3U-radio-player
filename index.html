@@ -41,10 +41,10 @@
     
     /* Main container for the player */
     .player-container {
-      width: 560px;
+      width: 580px;
       background: #1f1f1f;
       padding: 0px 10px;
-      border: white solid 1px;
+      border: #777 solid 1px;
     }
     
     /* Now playing text styling */
@@ -60,13 +60,14 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
+      /* border-top: #777 solid 1px; */
       /* margin-top: 15px; */
     }
     
     /* Styling for control buttons */
     .controls button {
       background: #2d2d2d;
-      /* border: none; */
+      border: #777 solid 1px;
       color: #eee;
       padding: 10px 20px;
       cursor: pointer;
@@ -90,22 +91,23 @@
       background: #1f1f1f;
       width: 100%;
       display: block;
-      border: white solid 1px;
+      border: #777 solid 1px;
       margin-bottom: 10px;
       margin-top: -10px;
+      padding: 5px;
     }
     
     /* Playlist container styling */
     .playlist {
       /* margin-top: 10px; */
-      max-height: 200px;
+      max-height: 164px;
       overflow: auto;
       padding: 0 10px;
       margin-bottom: 5px;
       /* margin-top: 10px; */
       /* border-top: 1px solid #333; */
       /* padding-top: 10px; */
-      border: white solid 1px;
+      border: #777 solid 1px;
     }
     
     /* Each playlist item style */
@@ -209,25 +211,25 @@
     <!-- Media control buttons -->
     <div class="controls">
       <!-- Button to load M3U from web -->
-      <button id="load-web-btn"><i class="fa fa-globe"></i></button>
+      <button id="load-web-btn" title="Load M3U from web"><i class="fa fa-globe"></i></button>
       <!-- Button to load M3U from local file -->
-      <button id="load-local-btn"><i class="fa fa-folder-open"></i></button>
+      <button id="load-local-btn" title="Load M3U from local file"><i class="fa fa-folder-open"></i></button>
       <!-- Hidden file input for local M3U files -->
       <input type="file" id="load-local" accept=".m3u" hidden />
       <!-- Previous track button -->
-      <button id="prev"><i class="fa fa-step-backward"></i></button>
+      <button id="prev" title="Previous track"><i class="fa fa-step-backward"></i></button>
       <!-- Play/Pause toggle button -->
-      <button id="play-pause"><i class="fa fa-play"></i></button>
+      <button id="play-pause" title="Play/Pause"><i class="fa fa-play"></i></button>
       <!-- Next track button -->
-      <button id="next"><i class="fa fa-step-forward"></i></button>
+      <button id="next" title="Next track"><i class="fa fa-step-forward"></i></button>
       <!-- Volume control buttons -->
       <div class="volume-controls">
         <!-- Volume decrease -->
-        <button id="volume-down"><i class="fa fa-volume-down"></i></button>
+        <button id="volume-down" title="Decrease volume"><i class="fa fa-volume-down"></i></button>
         <!-- Volume level display and mute toggle -->
-        <button id="volume-level-btn">50%</button>
+        <button id="volume-level-btn" title="Toggle mute/volume">50%</button>
         <!-- Volume increase -->
-        <button id="volume-up"><i class="fa fa-volume-up"></i></button>
+        <button id="volume-up" title="Increase volume"><i class="fa fa-volume-up"></i></button>
       </div>
     </div>
     <!-- Timeline progress display -->
@@ -245,7 +247,7 @@
     <!-- Playlist container where tracks will be listed -->
     <div class="playlist" id="playlist"></div>
     <!-- Stream info box displaying current track title and URL -->
-    <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #fff; padding:4px 8px; margin-top:10px; line-height:1.2em;">
+    <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #777; padding:4px 8px; margin-top:10px; line-height:1.2em;">
       <!-- Stream details container: prevents text overflow -->
       <div class="stream-details" style="flex:1; overflow:hidden; margin-right:8px;">
         <!-- Stream title with ellipsis for overflow -->
@@ -254,7 +256,7 @@
         <div id="stream-url" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">URL: </div>
       </div>
       <!-- Button to copy stream information to clipboard -->
-      <button id="copy-info-btn" style="background:#2d2d2d; border:none; color:#eee; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
+      <button id="copy-info-btn" title="Copy stream info" style="background:#2d2d2d; border:none; color:#777; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
         <i class="fa fa-copy"></i>
       </button>
     </div>
