@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta tags and title -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>M3U Player</title>
+  <!-- Include Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Internal CSS styles -->
   <style>
+    /* Import Roboto font from Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
     
+    /* Global resets and box model */
     * {
       box-sizing: border-box;
       border-radius: 0px;
     }
     
+    /* Style for track title: truncates text if too long */
     #track-title {
       margin: 0;
       white-space: nowrap;
@@ -20,6 +26,7 @@
       text-overflow: ellipsis;
     }
 
+    /* Body styling: font, background, centering */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
@@ -32,6 +39,7 @@
       min-height: 95vh;
     }
     
+    /* Main container for the player */
     .player-container {
       width: 560px;
       background: #1f1f1f;
@@ -39,6 +47,7 @@
       border: white solid 1px;
     }
     
+    /* Now playing text styling */
     .now-playing {
       text-align: left;
       padding: 0 10px;
@@ -46,6 +55,7 @@
       margin: 10px 0px;
     }
     
+    /* Controls container styling */
     .controls {
       display: flex;
       justify-content: space-around;
@@ -53,6 +63,7 @@
       /* margin-top: 15px; */
     }
     
+    /* Styling for control buttons */
     .controls button {
       background: #2d2d2d;
       /* border: none; */
@@ -64,14 +75,17 @@
       margin-bottom: 10px;
     }
     
+    /* Hover effect for control buttons */
     .controls button:hover {
       background: #3d3d3d;
     }
     
+    /* Visualizer container styling */
     .visualizer-container {
       margin-top: 20px;
     }
     
+    /* Canvas styling for visualizer */
     canvas {
       background: #1f1f1f;
       width: 100%;
@@ -81,6 +95,7 @@
       margin-top: -10px;
     }
     
+    /* Playlist container styling */
     .playlist {
       /* margin-top: 10px; */
       max-height: 200px;
@@ -93,6 +108,7 @@
       border: white solid 1px;
     }
     
+    /* Each playlist item style */
     .playlist-item {
       /* padding: 8px 10px; */
       margin: 0;
@@ -102,33 +118,38 @@
       transition: background 0.3s ease;
     }
     
+    /* Hover effect for playlist items */
     .playlist-item:hover {
       background: #3d3d3d;
     }
     
+    /* Highlighting the currently playing track */
     .playing {
       background: #5c5c5c;
       font-weight: bold;
     }
 
+    /* Icon font size */
     .fa {
       font-size: 1.5em;
     }
-    /* Replace .hidden with .invisible to preserve layout space */
+    /* Invisible class to hide elements but preserve layout space */
     .invisible {
       visibility: hidden;
     }
+    /* Volume level display fixed width */
     #volume-level {
       display: inline-block;
       width: 50px; /* fixed width to reserve space for "100%" */
       text-align: center;
     }
+    /* Volume controls container style */
     .volume-controls {
       display: inline-flex;
       align-items: center;
       gap: 2px; /* adjust gap as desired */
     }
-    /* Added styles for volume-level-btn to match other media keys */
+    /* Styling for volume level button */
     #volume-level-btn {
       background: #2d2d2d;
       /* border: none; */
@@ -137,10 +158,11 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
+    /* Hover effect for volume level button */
     #volume-level-btn:hover {
       background: #3d3d3d;
     }
-    /* Force all media buttons to the same fixed width and height */
+    /* Fix size for all media control buttons */
     .controls button, .volume-controls button {
       width: 70px;  /* adjust as desired */
       text-align: center;
@@ -150,7 +172,7 @@
       align-items: center;
       justify-content: center;
     }
-    /* New timeline styles */
+    /* Timeline container styling */
     .timeline {
       display: flex;
       align-items: center;
@@ -158,11 +180,13 @@
       margin-bottom: 10px;
       font-size: 14px;
     }
+    /* Time label style for the timeline */
     .timeline span {
       width: 50px;
       text-align: center;
       /* border: white solid 1px; */
     }
+    /* Timeline bar styling */
     .timeline-bar {
       flex: 1;
       height: 6px;
@@ -171,6 +195,7 @@
       position: relative;
       cursor: pointer;
     }
+    /* Progress overlay styling within the timeline */
     .timeline-progress {
       height: 100%;
       background: #ccc;
@@ -179,45 +204,68 @@
   </style>
 </head>
 <body>
+  <!-- Main player container -->
   <div class="player-container">
+    <!-- Media control buttons -->
     <div class="controls">
+      <!-- Button to load M3U from web -->
       <button id="load-web-btn"><i class="fa fa-globe"></i></button>
+      <!-- Button to load M3U from local file -->
       <button id="load-local-btn"><i class="fa fa-folder-open"></i></button>
+      <!-- Hidden file input for local M3U files -->
       <input type="file" id="load-local" accept=".m3u" hidden />
+      <!-- Previous track button -->
       <button id="prev"><i class="fa fa-step-backward"></i></button>
+      <!-- Play/Pause toggle button -->
       <button id="play-pause"><i class="fa fa-play"></i></button>
+      <!-- Next track button -->
       <button id="next"><i class="fa fa-step-forward"></i></button>
+      <!-- Volume control buttons -->
       <div class="volume-controls">
+        <!-- Volume decrease -->
         <button id="volume-down"><i class="fa fa-volume-down"></i></button>
-        <!-- Removed: copy-info button from here -->
+        <!-- Volume level display and mute toggle -->
         <button id="volume-level-btn">50%</button>
+        <!-- Volume increase -->
         <button id="volume-up"><i class="fa fa-volume-up"></i></button>
       </div>
     </div>
-    <!-- Moved timeline below media buttons -->
+    <!-- Timeline progress display -->
     <div class="timeline">
+      <!-- Elapsed time -->
       <span id="elapsed-time">00:00</span>
+      <!-- Clickable timeline bar for seeking -->
       <div class="timeline-bar">
+        <!-- Visual progress indicator -->
         <div class="timeline-progress"></div>
       </div>
+      <!-- Remaining time (displayed as a negative value) -->
       <span id="total-time">00:00</span>
     </div>
+    <!-- Playlist container where tracks will be listed -->
     <div class="playlist" id="playlist"></div>
-    <!-- Modified stream info box -->
+    <!-- Stream info box displaying current track title and URL -->
     <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #fff; padding:4px 8px; margin-top:10px; line-height:1.2em;">
+      <!-- Stream details container: prevents text overflow -->
       <div class="stream-details" style="flex:1; overflow:hidden; margin-right:8px;">
+        <!-- Stream title with ellipsis for overflow -->
         <div id="stream-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Title: </div>
+        <!-- Stream URL with ellipsis for overflow -->
         <div id="stream-url" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">URL: </div>
       </div>
+      <!-- Button to copy stream information to clipboard -->
       <button id="copy-info-btn" style="background:#2d2d2d; border:none; color:#eee; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
         <i class="fa fa-copy"></i>
       </button>
     </div>
+    <!-- Visualizer container with canvas for audio frequency visualization -->
     <div class="visualizer-container">
       <canvas id="visualizer" width="480" height="100"></canvas>
     </div>
   </div>
+  <!-- JavaScript to handle player functionality -->
   <script>
+    // Define the music playlist with track URLs and titles
     let playlist = [
       { url: 'http://stream.dancewave.online:8080/dance.mp3', title: 'Dance Wave!' },
       { url: 'http://80.251.40.4:8089/stream/1/', title: 'ANKARA UNİ RADYOSU' },
@@ -230,13 +278,16 @@
       { url: 'http://64.95.243.43:8002/stream/1/', title: 'BEST SMOOTH JAZZ' },
       { url: 'http://streaming.hdserver.biz:9300/stream/1/', title: 'LA SUEGRA FM' }
     ];
+    // Track the index of the current track
     let currentTrackIndex = 0;
+    // Flag indicating whether audio is playing
     let isPlaying = false;
+    // Create an audio element and set its initial volume
     const audioElement = new Audio();
     audioElement.crossOrigin = "anonymous";
     audioElement.volume = 0.5;
     
-    // Setup Web Audio API for visualizer
+    // Set up Web Audio API components for the visualizer
     const canvas = document.getElementById('visualizer');
     const canvasCtx = canvas.getContext('2d');
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -470,76 +521,79 @@
       document.getElementById("load-local").click();
     });
     
+    // New helper to parse M3U data into track objects
+    function parseM3U(data) {
+      const lines = data.split(/\r?\n/);
+      const tracks = [];
+      lines.forEach((line, index) => {
+        if (line.startsWith("#EXTINF")) {
+          const title = line.split(",")[1] || "Unknown Title";
+          const url = lines[index + 1];
+          if (url) tracks.push({ title, url });
+        }
+      });
+      return tracks;
+    }
+
+    // New helper to update the playlist container and global 'playlist'
+    function updatePlaylist(data) {
+      playlist = parseM3U(data);
+      const container = document.getElementById("playlist");
+      container.innerHTML = "";
+      playlist.forEach((track, index) => {
+        const entry = document.createElement("div");
+        entry.textContent = `${index + 1}. ${track.title}`;
+        entry.classList.add("playlist-item");
+        entry.addEventListener("click", () => loadTrack(index));
+        container.appendChild(entry);
+      });
+      if (playlist.length > 0) loadTrack(0);
+    }
+
+    // New helper to update timeline display (elapsed time, remaining time, and progress)
+    function updateTimeline() {
+      const current = audioElement.currentTime;
+      const cachedDuration = getCachedDuration();
+      document.getElementById("elapsed-time").textContent = formatTime(current);
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+        const percent = (current / cachedDuration) * 100;
+        document.querySelector(".timeline-progress").style.width = percent + "%";
+      }
+    }
+
+    // Consolidate timeline events
+    audioElement.addEventListener("timeupdate", updateTimeline);
+    audioElement.addEventListener("progress", updateTimeline);
+    audioElement.addEventListener("loadedmetadata", updateTimeline);
+
+    // Updated M3U loading for local file using updatePlaylist
     document.getElementById("load-local").addEventListener("change", async (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const lines = e.target.result.split(/\r?\n/);
-          playlist = [];
-          document.getElementById("playlist").innerHTML = "";
-          lines.forEach((line, index) => {
-            if (line.startsWith("#EXTINF")) {
-              const title = line.split(",")[1] || "Unknown Title";
-              const url = lines[index + 1];
-              if (url) {
-                const trackIndex = playlist.length;
-                playlist.push({ url, title });
-                const entry = document.createElement("div");
-                entry.textContent = `${trackIndex + 1}. ${title}`; // Modified: add numbering
-                entry.classList.add("playlist-item");
-                entry.addEventListener("click", () => loadTrack(trackIndex));
-                document.getElementById("playlist").appendChild(entry);
-              }
-            }
-          });
-          if (playlist.length > 0) {
-            loadTrack(0);
-          }
+          updatePlaylist(e.target.result);
         };
         reader.readAsText(file);
       }
     });
-    
+
+    // Updated M3U loading from web using updatePlaylist
     document.getElementById("load-web-btn").addEventListener("click", () => {
       const url = prompt("Enter the URL of the M3U file:");
       if (url) {
         fetch(url)
           .then(response => {
-            if (response.ok || response.status === 200 || response.status === 300) {
-              return response.text();
-            } else {
-              throw new Error("Failed to load M3U file");
-            }
+            if (response.ok) return response.text();
+            else throw new Error("Failed to load M3U file");
           })
-          .then(data => {
-            const lines = data.split(/\r?\n/);
-            playlist = [];
-            document.getElementById("playlist").innerHTML = "";
-            lines.forEach((line, index) => {
-              if (line.startsWith("#EXTINF")) {
-                const title = line.split(",")[1] || "Unknown Title";
-                const url = lines[index + 1];
-                if (url) {
-                  const trackIndex = playlist.length;
-                  playlist.push({ url, title });
-                  const entry = document.createElement("div");
-                  entry.textContent = `${trackIndex + 1}. ${title}`; // Modified: add numbering
-                  entry.classList.add("playlist-item");
-                  entry.addEventListener("click", () => loadTrack(trackIndex));
-                  document.getElementById("playlist").appendChild(entry);
-                }
-              }
-            });
-            if (playlist.length > 0) {
-              loadTrack(0);
-            }
-          })
+          .then(data => updatePlaylist(data))
           .catch(console.error);
       }
     });
 
-    // Initialize playlist display and set default track (without autoplay)
     document.addEventListener("DOMContentLoaded", () => {
       const playlistContainer = document.getElementById("playlist");
       playlist.forEach((track, index) => {
