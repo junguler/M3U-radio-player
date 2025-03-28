@@ -81,22 +81,6 @@
       background: #3d3d3d;
     }
     
-    /* Visualizer container styling */
-    .visualizer-container {
-      margin-top: 20px;
-    }
-    
-    /* Canvas styling for visualizer */
-    canvas {
-      background: #1f1f1f;
-      width: 100%;
-      display: block;
-      border: #777 solid 1px;
-      margin-bottom: 10px;
-      margin-top: -10px;
-      padding: 5px;
-    }
-    
     /* Playlist container styling */
     .playlist {
       /* margin-top: 10px; */
@@ -203,6 +187,43 @@
       background: #ccc;
       width: 0%;
     }
+
+    /* Stream info box styles */
+    .stream-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #777;
+      padding: 4px 8px;
+      margin: 10px 0px;
+      line-height: 1.2em;
+    }
+
+    /* Stream details container */
+    .stream-details {
+      flex: 1;
+      overflow: hidden;
+      margin-right: 8px;
+    }
+
+    /* Stream title and URL text */
+    #stream-title,
+    #stream-url {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Copy info button */
+    #copy-info-btn {
+      background: #2d2d2d;
+      border: none;
+      color: #777;
+      padding: 2px 6px;
+      font-size: 0.8em;
+      margin: 2px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -247,22 +268,14 @@
     <!-- Playlist container where tracks will be listed -->
     <div class="playlist" id="playlist"></div>
     <!-- Stream info box displaying current track title and URL -->
-    <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #777; padding:4px 8px; margin-top:10px; line-height:1.2em;">
-      <!-- Stream details container: prevents text overflow -->
-      <div class="stream-details" style="flex:1; overflow:hidden; margin-right:8px;">
-        <!-- Stream title with ellipsis for overflow -->
-        <div id="stream-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Title: </div>
-        <!-- Stream URL with ellipsis for overflow -->
-        <div id="stream-url" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">URL: </div>
+    <div class="stream-info">
+      <div class="stream-details">
+        <div id="stream-title">Title: </div>
+        <div id="stream-url">URL: </div>
       </div>
-      <!-- Button to copy stream information to clipboard -->
-      <button id="copy-info-btn" title="Copy stream info" style="background:#2d2d2d; border:none; color:#777; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
+      <button id="copy-info-btn" title="Copy stream info">
         <i class="fa fa-copy"></i>
       </button>
-    </div>
-    <!-- Visualizer container with canvas for audio frequency visualization -->
-    <div class="visualizer-container">
-      <canvas id="visualizer" width="480" height="100"></canvas>
     </div>
   </div>
   <!-- JavaScript to handle player functionality -->
@@ -289,109 +302,9 @@
     audioElement.crossOrigin = "anonymous";
     audioElement.volume = 0.5;
     
-    // Set up Web Audio API components for the visualizer
-    const canvas = document.getElementById('visualizer');
-    const canvasCtx = canvas.getContext('2d');
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    // Create a MediaElementAudioSourceNode to use the audio stream
-    const source = audioCtx.createMediaElementSource(audioElement);
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    
-    // New helper function to return gradient color
-    function getGradientColor(ratio) {
-      let r, g, b;
-      if (ratio <= 0.5) {
-        // interpolate from yellow (255,255,0) to magenta (255,0,255)
-        const t = ratio / 0.5;
-        r = 255;
-        g = Math.round(255 * (1 - t));
-        b = Math.round(255 * t);
-      } else {
-        // interpolate from magenta (255,0,255) to cyan (0,255,255)
-        const t = (ratio - 0.5) / 0.5;
-        r = Math.round(255 * (1 - t));
-        g = Math.round(255 * t);
-        b = 255;
-      }
-      return 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-    
-    const numBars = 32; // optimized number of bars
-    const gap = 4;
-    const binSize = bufferLength / numBars;
-    // Precompute bar boundaries once for all frames
-    const boundaries = [];
-    for (let i = 0; i <= numBars; i++) {
-      boundaries[i] = Math.floor(i * binSize);
-    }
-    
-    function drawVisualizer() {
-      requestAnimationFrame(drawVisualizer);
-      analyser.getByteFrequencyData(dataArray);
-      
-      const w = canvas.width, h = canvas.height;
-      // Clear canvas
-      canvasCtx.fillStyle = '#1f1f1f';
-      canvasCtx.fillRect(0, 0, w, h);
-      
-      // Compute bar heights using cached boundaries
-      const barHeights = new Array(numBars);
-      for (let i = 0; i < numBars; i++) {
-        const start = boundaries[i],
-              end = boundaries[i + 1];
-        let sum = 0;
-        for (let j = start; j < end; j++) {
-          sum += dataArray[j];
-        }
-        const avg = (end - start) ? (sum / (end - start)) : 0;
-        barHeights[i] = Math.min(avg / 2, h);
-      }
-      
-      // Determine active bars (those with height > 1)
-      const activeIndices = [];
-      for (let i = 0; i < numBars; i++) {
-        if (barHeights[i] > 1) activeIndices.push(i);
-      }
-      
-      if (activeIndices.length > 0 && activeIndices.length < numBars) {
-        const activeCount = activeIndices.length,
-              activeBarWidth = (w - gap * (activeCount - 1)) / activeCount;
-        let currentX = 0;
-        for (let k = 0; k < activeCount; k++) {
-          const index = activeIndices[k],
-                ratio = activeCount > 1 ? k / (activeCount - 1) : 0,
-                color = getGradientColor(ratio);
-          canvasCtx.fillStyle = color;
-          canvasCtx.fillRect(currentX, h - barHeights[index], activeBarWidth, barHeights[index]);
-          currentX += activeBarWidth + gap;
-        }
-      } else {
-        const defaultBarWidth = (w - gap * (numBars - 1)) / numBars;
-        for (let i = 0; i < numBars; i++) {
-          const ratio = numBars > 1 ? i / (numBars - 1) : 0,
-                color = getGradientColor(ratio),
-                x = i * (defaultBarWidth + gap);
-          canvasCtx.fillStyle = color;
-          canvasCtx.fillRect(x, h - barHeights[i], defaultBarWidth, barHeights[i]);
-        }
-      }
-    }
-    
-    drawVisualizer();
-    
     function playAudio() {
       if (!audioElement.src) {
         loadTrack(currentTrackIndex);
-      }
-      // Ensure AudioContext is resumed (required by some browsers)
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
       }
       audioElement.play().catch(console.error);
       isPlaying = true;

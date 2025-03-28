@@ -10,6 +10,7 @@ wrestle with chatgpt for a several hours to create a m3u radio player, this page
 * add a timeline with elapsed duration at the left and cached time at the right
 * make playlist entries always scroll to view
 * add a stream info box with optional button copy current stream's info to clipboard
+* add a optional [minimal](https://junguler.github.io/M3U-radio-player/minimal.html) version without visualizer
 
 things i want to add, eventually:
 
