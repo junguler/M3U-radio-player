@@ -41,7 +41,7 @@
     
     /* Main container for the player */
     .player-container {
-      width: 600px;
+      width: 580px;
       background: #1f1f1f;
       padding: 0px 10px;
       border: #777 solid 1px;
@@ -202,6 +202,40 @@
       height: 100%;
       background: #ccc;
       width: 0%;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;  /* reduce outer padding */
+      }
+      .player-container {
+        width: 100%;  /* full width on small screens */
+        padding: 0 5px;  /* smaller inner padding */
+        border: none;
+      }
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 50px;  /* smaller button widths */
+        padding: 8px 10px;
+      }
+      .timeline span {
+        width: 40px;  /* adjust time label width */
+      }
+    }
+
+    /* New media query for very small screens */
+    @media (max-width: 400px) {
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 40px; /* further reduce button width */
+        padding: 5px 8px; /* reduce padding */
+        font-size: 0.8em; /* optional: reduce font/icon size */
+      }
+    }
+
+    @media (max-width: 320px) {
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 30px; /* further reduce button width */
+        padding: 4px 6px; /* further reduce padding */
+        font-size: 0.7em; /* further reduce font/icon size */
+      }
     }
   </style>
 </head>
