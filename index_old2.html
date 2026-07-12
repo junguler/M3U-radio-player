@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta tags and title -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>M3U Player</title>
+  <!-- Include Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Internal CSS styles -->
+  <style>
+    /* Import Roboto font from Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+    
+    /* Global resets and box model */
+    * {
+      box-sizing: border-box;
+      border-radius: 0px;
+    }
+    
+    /* Style for track title: truncates text if too long */
+    #track-title {
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Body styling: font, background, centering */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 95vh;
+    }
+    
+    /* Main container for the player */
+    .player-container {
+      width: 580px;
+      background: #1f1f1f;
+      padding: 0px 10px;
+      border: #777 solid 1px;
+    }
+    
+    /* Now playing text styling */
+    .now-playing {
+      text-align: left;
+      padding: 0 10px;
+      font-size: 16px;
+      margin: 10px 0px;
+    }
+    
+    /* Controls container styling */
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      /* border-top: #777 solid 1px; */
+      /* margin-top: 15px; */
+    }
+    
+    /* Styling for control buttons */
+    .controls button {
+      background: #2d2d2d;
+      border: #777 solid 1px;
+      color: #eee;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    
+    /* Hover effect for control buttons */
+    .controls button:hover {
+      background: #3d3d3d;
+    }
+    
+    /* Visualizer container styling */
+    .visualizer-container {
+      margin-top: 20px;
+    }
+    
+    /* Canvas styling for visualizer */
+    canvas {
+      background: #1f1f1f;
+      width: 100%;
+      display: block;
+      border: #777 solid 1px;
+      margin-bottom: 10px;
+      margin-top: -10px;
+      padding: 5px;
+    }
+    
+    /* Playlist container styling */
+    .playlist {
+      /* margin-top: 10px; */
+      max-height: 164px;
+      overflow: auto;
+      padding: 0 10px;
+      margin-bottom: 5px;
+      /* margin-top: 10px; */
+      /* border-top: 1px solid #333; */
+      /* padding-top: 10px; */
+      border: #777 solid 1px;
+    }
+    
+    /* Each playlist item style */
+    .playlist-item {
+      /* padding: 8px 10px; */
+      margin: 0;
+      margin-top: 4px;
+      background: #2d2d2d;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    /* Hover effect for playlist items */
+    .playlist-item:hover {
+      background: #3d3d3d;
+    }
+    
+    /* Highlighting the currently playing track */
+    .playing {
+      background: #5c5c5c;
+      font-weight: bold;
+    }
+
+    /* Icon font size */
+    .fa {
+      font-size: 1.5em;
+    }
+    /* Invisible class to hide elements but preserve layout space */
+    .invisible {
+      visibility: hidden;
+    }
+    /* Volume level display fixed width */
+    #volume-level {
+      display: inline-block;
+      width: 50px; /* fixed width to reserve space for "100%" */
+      text-align: center;
+    }
+    /* Volume controls container style */
+    .volume-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px; /* adjust gap as desired */
+    }
+    /* Styling for volume level button */
+    #volume-level-btn {
+      background: #2d2d2d;
+      /* border: none; */
+      color: #eee;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    /* Hover effect for volume level button */
+    #volume-level-btn:hover {
+      background: #3d3d3d;
+    }
+    /* Fix size for all media control buttons */
+    .controls button, .volume-controls button {
+      width: 70px;  /* adjust as desired */
+      text-align: center;
+      padding: 10px 20px;
+      display: flex;
+      line-height: 1.5;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Timeline container styling */
+    .timeline {
+      display: flex;
+      align-items: center;
+      /* margin-top: 5px; */
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    /* Time label style for the timeline */
+    .timeline span {
+      width: 50px;
+      text-align: center;
+      /* border: white solid 1px; */
+    }
+    /* Timeline bar styling */
+    .timeline-bar {
+      flex: 1;
+      height: 6px;
+      margin: 0 8px;
+      background: #555;
+      position: relative;
+      cursor: pointer;
+    }
+    /* Progress overlay styling within the timeline */
+    .timeline-progress {
+      height: 100%;
+      background: #ccc;
+      width: 0%;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;  /* reduce outer padding */
+      }
+      .player-container {
+        width: 100%;  /* full width on small screens */
+        padding: 0 5px;  /* smaller inner padding */
+        border: none;
+      }
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 50px;  /* smaller button widths */
+        padding: 8px 10px;
+      }
+      .timeline span {
+        width: 40px;  /* adjust time label width */
+      }
+    }
+
+    /* New media query for very small screens */
+    @media (max-width: 400px) {
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 40px; /* further reduce button width */
+        padding: 5px 8px; /* reduce padding */
+        font-size: 0.8em; /* optional: reduce font/icon size */
+      }
+    }
+
+    @media (max-width: 320px) {
+      .controls button, .volume-controls button, #volume-level-btn {
+        width: 30px; /* further reduce button width */
+        padding: 4px 6px; /* further reduce padding */
+        font-size: 0.7em; /* further reduce font/icon size */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Main player container -->
+  <div class="player-container">
+    <!-- Media control buttons -->
+    <div class="controls">
+      <!-- Button to load M3U from web -->
+      <button id="load-web-btn" title="Load M3U from web"><i class="fa fa-globe"></i></button>
+      <!-- Button to load M3U from local file -->
+      <button id="load-local-btn" title="Load M3U from local file"><i class="fa fa-folder-open"></i></button>
+      <!-- Hidden file input for local M3U files -->
+      <input type="file" id="load-local" accept=".m3u" hidden />
+      <!-- Previous track button -->
+      <button id="prev" title="Previous track"><i class="fa fa-step-backward"></i></button>
+      <!-- Play/Pause toggle button -->
+      <button id="play-pause" title="Play/Pause"><i class="fa fa-play"></i></button>
+      <!-- Next track button -->
+      <button id="next" title="Next track"><i class="fa fa-step-forward"></i></button>
+      <!-- Volume control buttons -->
+      <div class="volume-controls">
+        <!-- Volume decrease -->
+        <button id="volume-down" title="Decrease volume"><i class="fa fa-volume-down"></i></button>
+        <!-- Volume level display and mute toggle -->
+        <button id="volume-level-btn" title="Toggle mute/volume">50%</button>
+        <!-- Volume increase -->
+        <button id="volume-up" title="Increase volume"><i class="fa fa-volume-up"></i></button>
+      </div>
+    </div>
+    <!-- Timeline progress display -->
+    <div class="timeline">
+      <!-- Elapsed time -->
+      <span id="elapsed-time">00:00</span>
+      <!-- Clickable timeline bar for seeking -->
+      <div class="timeline-bar">
+        <!-- Visual progress indicator -->
+        <div class="timeline-progress"></div>
+      </div>
+      <!-- Remaining time (displayed as a negative value) -->
+      <span id="total-time">00:00</span>
+    </div>
+    <!-- Playlist container where tracks will be listed -->
+    <div class="playlist" id="playlist"></div>
+    <!-- Stream info box displaying current track title and URL -->
+    <div class="stream-info" style="display:flex; align-items:center; justify-content: space-between; border:1px solid #777; padding:4px 8px; margin-top:10px; line-height:1.2em;">
+      <!-- Stream details container: prevents text overflow -->
+      <div class="stream-details" style="flex:1; overflow:hidden; margin-right:8px;">
+        <!-- Stream title with ellipsis for overflow -->
+        <div id="stream-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Title: </div>
+        <!-- Stream URL with ellipsis for overflow -->
+        <div id="stream-url" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">URL: </div>
+      </div>
+      <!-- Button to copy stream information to clipboard -->
+      <button id="copy-info-btn" title="Copy stream info" style="background:#2d2d2d; border:none; color:#777; padding:2px 6px; font-size:0.8em; margin:2px; cursor:pointer;">
+        <i class="fa fa-copy"></i>
+      </button>
+    </div>
+    <!-- Visualizer container with canvas for audio frequency visualization -->
+    <div class="visualizer-container">
+      <canvas id="visualizer" width="480" height="100"></canvas>
+    </div>
+  </div>
+  <!-- JavaScript to handle player functionality -->
+  <script>
+    // Define the music playlist with track URLs and titles
+    let playlist = [
+      { url: 'http://stream.dancewave.online:8080/dance.mp3', title: 'Dance Wave!' },
+      { url: 'http://80.251.40.4:8089/stream/1/', title: 'ANKARA UNİ RADYOSU' },
+      { url: 'http://51.89.148.171:8022/stream/1/', title: 'Dance UK Radio danceradiouk' },
+      { url: 'http://hirschmilch.de:7000/stream/4/', title: 'Hirschmilch Chillout' },
+      { url: 'http://listen.rusongs.ru/ru-mp3-128', title: 'Russkie Pesni' },
+      { url: 'http://uk2.streamingpulse.com:8010/stream/1/', title: 'Venice Classic Radio Auditorium' },
+      { url: 'http://b.fmradiomanele.ro:8044/stream/1/', title: 'Radio Manele Romania' },
+      { url: 'http://stream.funradio.sk:8000/fun128.mp3', title: 'FUN Radio Live' },
+      { url: 'http://64.95.243.43:8002/stream/1/', title: 'BEST SMOOTH JAZZ' },
+      { url: 'http://streaming.hdserver.biz:9300/stream/1/', title: 'LA SUEGRA FM' }
+    ];
+    // Track the index of the current track
+    let currentTrackIndex = 0;
+    // Flag indicating whether audio is playing
+    let isPlaying = false;
+    // Create an audio element and set its initial volume
+    const audioElement = new Audio();
+    audioElement.crossOrigin = "anonymous";
+    audioElement.volume = 0.5;
+    
+    // Set up Web Audio API components for the visualizer
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Create a MediaElementAudioSourceNode to use the audio stream
+    const source = audioCtx.createMediaElementSource(audioElement);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    
+    // New helper function to return gradient color
+    function getGradientColor(ratio) {
+      let r, g, b;
+      if (ratio <= 0.5) {
+        // interpolate from yellow (255,255,0) to magenta (255,0,255)
+        const t = ratio / 0.5;
+        r = 255;
+        g = Math.round(255 * (1 - t));
+        b = Math.round(255 * t);
+      } else {
+        // interpolate from magenta (255,0,255) to cyan (0,255,255)
+        const t = (ratio - 0.5) / 0.5;
+        r = Math.round(255 * (1 - t));
+        g = Math.round(255 * t);
+        b = 255;
+      }
+      return 'rgb(' + r + ',' + g + ',' + b + ')';
+    }
+    
+    const numBars = 32; // optimized number of bars
+    const gap = 4;
+    const binSize = bufferLength / numBars;
+    // Precompute bar boundaries once for all frames
+    const boundaries = [];
+    for (let i = 0; i <= numBars; i++) {
+      boundaries[i] = Math.floor(i * binSize);
+    }
+    
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+      analyser.getByteFrequencyData(dataArray);
+      
+      const w = canvas.width, h = canvas.height;
+      // Clear canvas
+      canvasCtx.fillStyle = '#1f1f1f';
+      canvasCtx.fillRect(0, 0, w, h);
+      
+      // Compute bar heights using cached boundaries
+      const barHeights = new Array(numBars);
+      for (let i = 0; i < numBars; i++) {
+        const start = boundaries[i],
+              end = boundaries[i + 1];
+        let sum = 0;
+        for (let j = start; j < end; j++) {
+          sum += dataArray[j];
+        }
+        const avg = (end - start) ? (sum / (end - start)) : 0;
+        barHeights[i] = Math.min(avg / 2, h);
+      }
+      
+      // Determine active bars (those with height > 1)
+      const activeIndices = [];
+      for (let i = 0; i < numBars; i++) {
+        if (barHeights[i] > 1) activeIndices.push(i);
+      }
+      
+      if (activeIndices.length > 0 && activeIndices.length < numBars) {
+        const activeCount = activeIndices.length,
+              activeBarWidth = (w - gap * (activeCount - 1)) / activeCount;
+        let currentX = 0;
+        for (let k = 0; k < activeCount; k++) {
+          const index = activeIndices[k],
+                ratio = activeCount > 1 ? k / (activeCount - 1) : 0,
+                color = getGradientColor(ratio);
+          canvasCtx.fillStyle = color;
+          canvasCtx.fillRect(currentX, h - barHeights[index], activeBarWidth, barHeights[index]);
+          currentX += activeBarWidth + gap;
+        }
+      } else {
+        const defaultBarWidth = (w - gap * (numBars - 1)) / numBars;
+        for (let i = 0; i < numBars; i++) {
+          const ratio = numBars > 1 ? i / (numBars - 1) : 0,
+                color = getGradientColor(ratio),
+                x = i * (defaultBarWidth + gap);
+          canvasCtx.fillStyle = color;
+          canvasCtx.fillRect(x, h - barHeights[i], defaultBarWidth, barHeights[i]);
+        }
+      }
+    }
+    
+    drawVisualizer();
+    
+    function playAudio() {
+      if (!audioElement.src) {
+        loadTrack(currentTrackIndex);
+      }
+      // Ensure AudioContext is resumed (required by some browsers)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      audioElement.play().catch((error) => {
+        console.error("Playback failed:", error);
+        // Skip immediately if the stream is dead (e.g., network error)
+        setTimeout(() => {
+          if (!audioElement.currentTime && !audioElement.paused) {
+            loadTrack((currentTrackIndex + 1) % playlist.length);
+          }
+        }, 1000);
+      });
+      isPlaying = true;
+      document.getElementById("play-pause").innerHTML = '<i class="fa fa-pause"></i>';
+      // Wait up to 3 seconds for a valid stream to start playing
+      setTimeout(() => {
+        if (!audioElement.currentTime && !audioElement.paused) {
+          loadTrack((currentTrackIndex + 1) % playlist.length);
+        }
+      }, 3000);
+    }
+    
+    function loadTrack(index, autoplay = true) {
+      if (playlist.length === 0) return;
+      currentTrackIndex = index;
+      audioElement.src = playlist[index].url;
+      document.getElementById("stream-title").textContent = "Title: " + playlist[index].title;
+      document.getElementById("stream-url").textContent = "URL: " + playlist[index].url;
+      updatePlaylistHighlight();
+      if (autoplay) {
+        playAudio();
+      } else {
+        document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
+      }
+    }
+    
+    // Global variable to track previous index
+    let prevTrackIndex = 0;
+    
+    // Updated updatePlaylistHighlight() to scroll extra only when current item is near top or bottom of the view.
+    function updatePlaylistHighlight() {
+      const container = document.getElementById("playlist");
+      const containerRect = container.getBoundingClientRect();
+      const items = document.querySelectorAll('.playlist-item');
+      const threshold = 50; // pixels from edge when extra scrolling is triggered
+      items.forEach((item, index) => {
+        if (index === currentTrackIndex) {
+          item.classList.add('playing');
+          const itemRect = item.getBoundingClientRect();
+          if (itemRect.bottom > containerRect.bottom - threshold) {
+            // If near the container's bottom edge, scroll extra downwards.
+            const extra = itemRect.bottom - containerRect.bottom + threshold;
+            container.scrollBy({ top: extra, behavior: 'smooth' });
+          } else if (itemRect.top < containerRect.top + threshold) {
+            // If near the container's top edge, scroll extra upwards.
+            const extra = itemRect.top - containerRect.top - threshold;
+            container.scrollBy({ top: extra, behavior: 'smooth' });
+          }
+        } else {
+          item.classList.remove('playing');
+        }
+      });
+    }
+    
+    document.getElementById("play-pause").addEventListener("click", () => {
+      if (!isPlaying) {
+        playAudio();
+      } else {
+        audioElement.pause();
+        isPlaying = false;
+        document.getElementById("play-pause").innerHTML = '<i class="fa fa-play"></i>';
+      }
+    });
+    
+    document.getElementById("next").addEventListener("click", () => {
+      if (playlist.length > 0) {
+        loadTrack((currentTrackIndex + 1) % playlist.length);
+      }
+    });
+    
+    document.getElementById("prev").addEventListener("click", () => {
+      if (playlist.length > 0) {
+        loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
+      }
+    });
+    
+    document.getElementById("volume-up").addEventListener("click", () => {
+      if (audioElement.volume < 1) {
+        audioElement.volume = Math.min(1, audioElement.volume + 0.1);
+        if (!audioElement.muted) {
+          document.getElementById("volume-level-btn").innerHTML =
+            Math.round(audioElement.volume * 100) + "%";
+        }
+      }
+    });
+    
+    document.getElementById("volume-down").addEventListener("click", () => {
+      if (audioElement.volume > 0) {
+        audioElement.volume = Math.max(0, audioElement.volume - 0.1);
+        if (!audioElement.muted) {
+          document.getElementById("volume-level-btn").innerHTML =
+            Math.round(audioElement.volume * 100) + "%";
+        }
+      }
+    });
+
+    // New: Toggle mute when clicking the volume percentage button
+    document.getElementById("volume-level-btn").addEventListener("click", () => {
+      audioElement.muted = !audioElement.muted;
+      if (audioElement.muted) {
+        document.getElementById("volume-level-btn").innerHTML = '<i class="fa fa-volume-mute"></i>';
+      } else {
+        document.getElementById("volume-level-btn").innerHTML =
+          Math.round(audioElement.volume * 100) + "%";
+      }
+    });
+    
+    // New: Copy stream info using new copy link
+    document.getElementById("copy-info-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      const titleText = document.getElementById("stream-title").textContent;
+      const urlText = document.getElementById("stream-url").textContent;
+      const textToCopy = titleText + "\n" + urlText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => { console.log("Stream info copied to clipboard."); })
+          .catch(err => console.error("Copy failed:", err));
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        console.log("Stream info copied to clipboard (fallback).");
+      }
+    });
+    
+    document.getElementById("load-local-btn").addEventListener("click", () => {
+      document.getElementById("load-local").click();
+    });
+    
+    // New helper to parse M3U data into track objects
+    function parseM3U(data) {
+      const lines = data.split(/\r?\n/);
+      const tracks = [];
+      lines.forEach((line, index) => {
+        if (line.startsWith("#EXTINF")) {
+          const title = line.split(",")[1] || "Unknown Title";
+          const url = lines[index + 1];
+          if (url) tracks.push({ title, url });
+        }
+      });
+      return tracks;
+    }
+
+    // New helper to update the playlist container and global 'playlist'
+    function updatePlaylist(data) {
+      playlist = parseM3U(data);
+      const container = document.getElementById("playlist");
+      container.innerHTML = "";
+      playlist.forEach((track, index) => {
+        const entry = document.createElement("div");
+        entry.textContent = `${index + 1}. ${track.title}`;
+        entry.classList.add("playlist-item");
+        entry.addEventListener("click", () => loadTrack(index));
+        container.appendChild(entry);
+      });
+      if (playlist.length > 0) loadTrack(0);
+    }
+
+    // New helper to update timeline display (elapsed time, remaining time, and progress)
+    function updateTimeline() {
+      const current = audioElement.currentTime;
+      const cachedDuration = getCachedDuration();
+      document.getElementById("elapsed-time").textContent = formatTime(current);
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+        const percent = (current / cachedDuration) * 100;
+        document.querySelector(".timeline-progress").style.width = percent + "%";
+      }
+    }
+
+    // Consolidate timeline events
+    audioElement.addEventListener("timeupdate", updateTimeline);
+    audioElement.addEventListener("progress", updateTimeline);
+    audioElement.addEventListener("loadedmetadata", updateTimeline);
+
+    // Updated M3U loading for local file using updatePlaylist
+    document.getElementById("load-local").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updatePlaylist(e.target.result);
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Updated M3U loading from web using updatePlaylist
+    document.getElementById("load-web-btn").addEventListener("click", () => {
+      const url = prompt("Enter the URL of the M3U file:");
+      if (url) {
+        fetch(url)
+          .then(response => {
+            if (response.ok) return response.text();
+            else throw new Error("Failed to load M3U file");
+          })
+          .then(data => updatePlaylist(data))
+          .catch(console.error);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const playlistContainer = document.getElementById("playlist");
+      playlist.forEach((track, index) => {
+        const entry = document.createElement("div");
+        entry.textContent = `${index + 1}. ${track.title}`;
+        entry.classList.add("playlist-item");
+        entry.addEventListener("click", () => loadTrack(index));
+        playlistContainer.appendChild(entry);
+      });
+      if (playlist.length > 0) {
+        loadTrack(0, false);
+      }
+    });
+
+    // New helper function to format time mm:ss
+    function formatTime(time) {
+      const minutes = Math.floor(time / 60);
+      const seconds = Math.floor(time % 60);
+      return (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    }
+    
+    // New helper function to get cached duration
+    function getCachedDuration() {
+      return audioElement.buffered.length 
+        ? audioElement.buffered.end(audioElement.buffered.length - 1) 
+        : 0;
+    }
+
+    // Update timeline using cached duration with a minus sign for remaining time
+    audioElement.addEventListener("timeupdate", () => {
+      const current = audioElement.currentTime;
+      const cachedDuration = getCachedDuration();
+      document.getElementById("elapsed-time").textContent = formatTime(current);
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+        const percent = (current / cachedDuration) * 100;
+        document.querySelector(".timeline-progress").style.width = percent + "%";
+      }
+    });
+    
+    // Update timeline on progress to display remaining time
+    audioElement.addEventListener("progress", () => {
+      const cachedDuration = getCachedDuration();
+      const current = audioElement.currentTime;
+      if (cachedDuration) {
+        const remaining = cachedDuration - current;
+        document.getElementById("total-time").textContent = '-' + formatTime(remaining);
+      }
+    });
+    
+    // Update loadedmetadata to initialize remaining time display
+    audioElement.addEventListener("loadedmetadata", () => {
+      const cachedDuration = getCachedDuration();
+      if (cachedDuration) {
+        document.getElementById("total-time").textContent = '-' + formatTime(cachedDuration - audioElement.currentTime);
+      }
+    });
+    
+    // Allow seeking based on cached duration
+    document.querySelector(".timeline-bar").addEventListener("click", (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const cachedDuration = getCachedDuration();
+      audioElement.currentTime = (clickX / rect.width) * cachedDuration;
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9303d20fb95153d0',t:'MTc0NDY0MDE4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>

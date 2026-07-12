@@ -2,58 +2,127 @@
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MiniAmp — Web Radio (Compact)</title>
-<style>:root{--bg:#0e1015;--deck:#191c23;--panel:#1a1d26;--panel2:#222634;--txt:#e6eaf6;--muted:#9aa6be;--accent:#6ccff6;--accent2:#9a77ff;--ok:#44d07b;--warn:#ffc857;--err:#ff5f6f;--led:#92ff9a}*{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;color:var(--txt);background:radial-gradient(1200px 800px at 50% 100%,#14182a 0%,#0e1015 60%);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,noto sans,sans-serif;display:grid;place-items:center}.app{width:min(92vw,760px);height:min(94vh,680px);display:flex;flex-direction:column;gap:8px;padding:10px 10px 12px;overflow:hidden}.ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.deck{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1c202b,#121520);border:1px solid #2a2f46;border-radius:10px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,5%);min-width:0;overflow:hidden}.status-dot{width:10px;height:10px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px var(--warn)}.title{flex:auto;min-width:0;background:#0a0d10;border:1px solid #202534;border-radius:6px;padding:6px 10px;color:var(--led);font-weight:600;font-size:14px;letter-spacing:.3px;box-shadow:inset 0 0 24px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,3%)}.badge{font-size:11px;color:var(--muted);background:#1a1f2e;border:1px solid #2a2f46;border-radius:999px;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deck>.badge{flex:initial;max-width:34%}.controls{background:var(--panel2);border:1px solid #2a2f46;border-radius:10px;padding:6px 8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;overflow:hidden}.btn{appearance:none;border:none;cursor:pointer;background:linear-gradient(180deg,#2a3047,#20253a);border:1px solid #2f3551;color:#eef3ff;width:36px;height:32px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:.15s transform,.15s filter;overflow:hidden}.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}.btn:active{transform:translateY(0)}.btn.toggle.on{background:linear-gradient(180deg,#4a5dd4,#3947a8);border-color:#5d70f0;color:#0c1126}.btn.ok{background:linear-gradient(180deg,#44d07b,#1f9e57);color:#0b120e;border-color:#45e18a}.btn.stop{background:linear-gradient(180deg,#ff7a85,#ff4d5a);color:#2b0c10;border-color:#ff9aa3}.sep{width:1px;height:20px;background:#333a57;margin:0 2px;border-radius:1px}.btn.small{width:28px;height:28px;font-size:14px}.volbox{display:flex;align-items:center;gap:4px;background:#1a1f2e;border:1px solid #2a2f46;border-radius:8px;padding:4px 6px}.volnum{min-width:44px;text-align:center;font-weight:700;color:#d9e4ff}.main{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}.playlist{display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid #2a2f46;border-radius:10px;overflow:hidden}.plist-body{flex:1;min-height:0;overflow:auto;scroll-behavior:auto}ul#playlist{list-style:none;margin:0;padding:0}#playlist li{display:flex;align-items:center;gap:8px;padding:3px 10px;border-bottom:1px solid #21263a;cursor:pointer;font-size:14px}#playlist li:hover{background:#171b2b}#playlist li.active{background:linear-gradient(90deg,#293056 0%,transparent 70%)}#playlist li .num{width:24px;color:#8fa0c8;text-align:right;flex:none}#playlist li .title{flex:1;min-width:0;color:#e5eaf6}#playlist li .actions{display:flex;gap:4px;flex:none}#playlist li .actions .mini{width:22px;height:22px;font-size:12px;opacity:.9}.hint{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;color:var(--muted);font-size:12px;gap:6px}.hint>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:760px){.app{height:100vh;padding:8px}.controls{gap:3px}.btn{width:34px;height:30px}.volbox .btn.small{width:26px;height:26px}.playlist{min-height:50vh}}
+<style>
+:root{--bg:#0e1015;--deck:#191c23;--panel:#1a1d26;--panel2:#222634;--txt:#e6eaf6;--muted:#9aa6be;--accent:#6ccff6;--accent2:#9a77ff;--ok:#44d07b;--warn:#ffc857;--err:#ff5f6f;--led:#92ff9a}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;color:var(--txt);background:radial-gradient(1200px 800px at 50% 100%,#14182a 0%,#0e1015 60%);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,noto sans,sans-serif;display:grid;place-items:center}
+.app{width:min(92vw,760px);height:min(94vh,680px);display:flex;flex-direction:column;gap:8px;padding:10px 10px 12px;overflow:hidden}
+.ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.deck{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#1c202b,#121520);border:1px solid #2a2f46;border-radius:10px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,5%);min-width:0;overflow:hidden}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px var(--warn);flex:none}
+.title{flex:auto;min-width:0;background:#0a0d10;border:1px solid #202534;border-radius:6px;padding:6px 10px;color:var(--led);font-weight:600;font-size:14px;letter-spacing:.3px;box-shadow:inset 0 0 24px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,3%)}
+.badge{font-size:11px;color:var(--muted);background:#1a1f2e;border:1px solid #2a2f46;border-radius:999px;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deck>.badge{flex:initial;max-width:34%}
+.controls{background:var(--panel2);border:1px solid #2a2f46;border-radius:10px;padding:6px 8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;overflow:hidden}
+.btn{appearance:none;border:none;cursor:pointer;background:linear-gradient(180deg,#2a3047,#20253a);border:1px solid #2f3551;color:#eef3ff;width:36px;height:32px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:.15s transform,.15s filter;overflow:hidden}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn.toggle.on{background:linear-gradient(180deg,#4a5dd4,#3947a8);border-color:#5d70f0;color:#0c1126}
+.btn.ok{background:linear-gradient(180deg,#44d07b,#1f9e57);color:#0b120e;border-color:#45e18a}
+.btn.stop{background:linear-gradient(180deg,#ff7a85,#ff4d5a);color:#2b0c10;border-color:#ff9aa3}
+.sep{width:1px;height:20px;background:#333a57;margin:0 2px;border-radius:1px}
+.btn.small{width:28px;height:28px;font-size:14px}
+.volbox{display:flex;align-items:center;gap:4px;background:#1a1f2e;border:1px solid #2a2f46;border-radius:8px;padding:4px 6px}
+.volnum{min-width:44px;text-align:center;font-weight:700;color:#d9e4ff}
+.main{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.playlist{display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid #2a2f46;border-radius:10px;overflow:hidden}
+.plist-body{flex:1;min-height:0;overflow:auto;scroll-behavior:auto}
+ul#playlist{list-style:none;margin:0;padding:0}
+#playlist li{display:flex;align-items:center;gap:8px;padding:3px 10px;border-bottom:1px solid #21263a;cursor:pointer;font-size:14px}
+#playlist li:hover{background:#171b2b}
+#playlist li.active{background:linear-gradient(90deg,#293056 0%,transparent 70%)}
+#playlist li.dead{opacity:.5}
+#playlist li .num{width:24px;color:#8fa0c8;text-align:right;flex:none}
+#playlist li .title{flex:1;min-width:0;color:#e5eaf6}
+#playlist li .actions{display:flex;gap:4px;flex:none}
+#playlist li .actions .mini{width:22px;height:22px;font-size:12px;opacity:.9}
+.hint{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;color:var(--muted);font-size:12px;gap:6px}
+.hint>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){.app{height:100vh;padding:8px}.controls{gap:3px}.btn{width:34px;height:30px}.volbox .btn.small{width:26px;height:26px}.playlist{min-height:50vh}}
+
+/* --- unified icon system --- */
+.icon{width:16px;height:16px;display:inline-block;vertical-align:middle;pointer-events:none}
+.btn .icon{width:17px;height:17px}
+.btn.small .icon{width:14px;height:14px}
+.btn.mini .icon{width:12px;height:12px}
+.volbox .btn .icon{width:13px;height:13px}
+
 /* --- Compact mode overrides (scoped to .app.compact) --- */
-/* Add only small, non-invasive overrides when .app has .compact */
-.app.compact .deck { gap:8px; padding:6px 8px; border-radius:8px; }
-.app.compact .title { font-size:13px; padding:6px 8px; }
-.app.compact .deck > .badge { display:none; } /* hide badges to save space */
-.app.compact .controls { padding:6px; gap:6px; border-radius:8px; flex-wrap:wrap; }
-.app.compact .btn { min-width:36px; height:36px; padding:0 6px; border-radius:8px; font-size:15px; }
-.app.compact .btn.small { width:36px; height:36px; font-size:14px; padding:0; }
-.app.compact .volbox { padding:4px; gap:6px; }
-.app.compact .volnum { min-width:40px; font-size:13px; }
-.app.compact .sep { height:20px; margin:0 4px; }
-.app.compact .playlist { border-radius:8px; }
-.app.compact .plist-body { padding:4px; }
-.app.compact #playlist li { padding:6px 8px; font-size:14px; border-radius:8px; }
-.app.compact .hint { padding:6px; font-size:12px; }
-/* Optional: hide some less-used control buttons in very tight space if you wrap them in .optional */
-.app.compact .controls .optional { display:none; }
-/* End compact overrides */
+.app.compact .deck{gap:8px;padding:6px 8px;border-radius:8px}
+.app.compact .title{font-size:13px;padding:6px 8px}
+.app.compact .deck>.badge{display:none}
+.app.compact .controls{padding:6px;gap:6px;border-radius:8px;flex-wrap:wrap}
+.app.compact .btn{min-width:36px;height:36px;padding:0 6px;border-radius:8px;font-size:15px}
+.app.compact .btn.small{width:36px;height:36px;font-size:14px;padding:0}
+.app.compact .volbox{padding:4px;gap:6px}
+.app.compact .volnum{min-width:40px;font-size:13px}
+.app.compact .sep{height:20px;margin:0 4px}
+.app.compact .playlist{border-radius:8px}
+.app.compact .plist-body{padding:4px}
+.app.compact #playlist li{padding:6px 8px;font-size:14px;border-radius:8px}
+.app.compact .hint{padding:6px;font-size:12px}
+.app.compact .controls .optional{display:none}
 </style>
+
+<!-- SVG sprite: one consistent icon family for every control -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7-11-7z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><rect x="5" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M20 19L10 12l10-7v14z" fill="currentColor"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><rect x="17" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M4 19l10-7L4 5v14z" fill="currentColor"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M4 6h3c3 0 5 4 9 4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 18h3c3 0 5-4 9-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 14l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-eq" viewBox="0 0 24 24"><rect x="3" y="3" width="3" height="18" rx="1.5" fill="currentColor"/><rect x="9" y="6" width="3" height="12" rx="1.5" fill="currentColor"/><rect x="15" y="3" width="3" height="18" rx="1.5" fill="currentColor"/><rect x="21" y="9" width="3" height="6" rx="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-volume-high" viewBox="0 0 24 24"><path d="M5 9h4l5-4v14l-5-4H5z" fill="currentColor"/><path d="M17 8c1.8 1.2 3 3 3 5s-1.2 3.8-3 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 5c2.9 1.8 5 4.9 5 8s-2.1 6.2-5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".6"/></symbol>
+  <symbol id="i-volume-off" viewBox="0 0 24 24"><path d="M5 9h4l5-4v14l-5-4H5z" fill="currentColor"/><path d="M18 9l4 4m0-4l-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-play-plus" viewBox="0 0 24 24"><path d="M5 5v14l9-7-9-7z" fill="currentColor"/><path d="M18 3v6M15 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="12" cy="12" rx="4" ry="9" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="2" width="6" height="4" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
 <div class=app role=application>
   <div class=deck>
     <div id=statusDot class=status-dot title=Status></div>
     <div id=nowTitle class="title ellipsis" title="Now Playing">—</div>
     <span id=statusText class="badge ellipsis">idle</span>
     <span id=featureBadge class="badge ellipsis" title="Audio features">WebAudio: init</span>
-  </div>  <div class=controls>
-    <button id=prevBtn class=btn title="Previous (←)">⏮️</button>
-    <button id=playBtn class="btn ok" title="Play/Pause (Space)">▶️</button>
-    <button id=stopBtn class="btn stop" title=Stop>⏹️</button>
-    <button id=nextBtn class="btn" title="Next (→)">⏭️</button><div class=sep></div>
-    <button id=shuffleBtn class="btn toggle" title=Shuffle>🔀</button>
-    <button id=normBtn class="btn toggle on" title="Auto gain + limiter (AGC) on/off">🎚️</button><div class=sep></div>
-    <button id=muteBtn class=btn title=Mute>🔇</button>
+  </div>
+  <div class=controls>
+    <button id=prevBtn class=btn title="Previous (←)"><svg class=icon><use href="#i-prev"/></svg></button>
+    <button id=playBtn class="btn ok" title="Play/Pause (Space)"><svg class=icon><use href="#i-play"/></svg></button>
+    <button id=stopBtn class="btn stop" title=Stop><svg class=icon><use href="#i-stop"/></svg></button>
+    <button id=nextBtn class="btn" title="Next (→)"><svg class=icon><use href="#i-next"/></svg></button>
+    <div class=sep></div>
+    <button id=shuffleBtn class="btn toggle" title=Shuffle><svg class=icon><use href="#i-shuffle"/></svg></button>
+    <button id=normBtn class="btn toggle on" title="Auto gain + limiter (AGC) on/off"><svg class=icon><use href="#i-eq"/></svg></button>
+    <div class=sep></div>
+    <button id=muteBtn class=btn title=Mute><svg class=icon><use href="#i-volume-high"/></svg></button>
     <div class=volbox title="Volume (±10%)">
-      <button id=volDown class="btn small" aria-label="Volume down">➖</button>
+      <button id=volDown class="btn small" aria-label="Volume down"><svg class=icon><use href="#i-minus"/></svg></button>
       <span id=volNum class=volnum>90%</span>
-      <button id=volUp class="btn small" aria-label="Volume up">➕</button>
+      <button id=volUp class="btn small" aria-label="Volume up"><svg class=icon><use href="#i-plus"/></svg></button>
     </div>
     <div class=sep></div>
-    <!-- wrap less-used buttons in .optional if you want them hidden in compact mode -->
     <div class="optional">
-      <button id=addStreamBtn class="btn small" title="Add single stream URL">➕</button>
-      <!-- Add new button for "Load & Play" -->
-      <button id=loadAndPlayBtn class="btn small" title="Load and play single stream">▶️➕</button>
-      <button id=loadUrlBtn class="btn small" title="Load .m3u from URL">🌐</button>
-      <button id=loadFileBtn class="btn small" title="Load .m3u file">📂</button>
-      <button id=pasteBtn class="btn small" title="Paste .m3u text">📋</button>
-      <button id=exportBtn class="btn small" title="Export playlist (.m3u)">💾</button>
-      <button id=clearBtn class="btn small" title="Clear playlist">🧹</button>
+      <button id=addStreamBtn class="btn small" title="Add single stream URL"><svg class=icon><use href="#i-plus"/></svg></button>
+      <button id=loadAndPlayBtn class="btn small" title="Load and play single stream"><svg class=icon><use href="#i-play-plus"/></svg></button>
+      <button id=loadUrlBtn class="btn small" title="Load .m3u from URL"><svg class=icon><use href="#i-globe"/></svg></button>
+      <button id=loadFileBtn class="btn small" title="Load .m3u file"><svg class=icon><use href="#i-folder"/></svg></button>
+      <button id=pasteBtn class="btn small" title="Paste .m3u text"><svg class=icon><use href="#i-clipboard"/></svg></button>
+      <button id=exportBtn class="btn small" title="Export playlist (.m3u)"><svg class=icon><use href="#i-download"/></svg></button>
+      <button id=clearBtn class="btn small" title="Clear playlist"><svg class=icon><use href="#i-trash"/></svg></button>
     </div>
-  </div>  <div class=main>
+  </div>
+  <div class=main>
     <div class=playlist>
       <div class=plist-body><ul id=playlist></ul></div>
       <div class=hint><span class=ellipsis>Drag & drop a .m3u anywhere</span>
@@ -63,20 +132,843 @@
 </div>
 <input id=fileInput type=file accept=.m3u,.m3u8,.txt hidden>
 <audio id=audio crossorigin=anonymous></audio>
-<script>(function(){"use strict";const r={fadeIn:.7,fadeOut:.6,targetDb:-18,limiter:-14},o=e=>document.querySelector(e),Me=e=>Array.from(document.querySelectorAll(e)),t=o("#audio"),Q=o("#nowTitle"),se=o("#statusDot"),be=o("#statusText"),re=o("#featureBadge"),k=o("#corsBadge"),le=o("#playBtn"),ue=o("#stopBtn"),he=o("#prevBtn"),pe=o("#nextBtn"),W=o("#shuffleBtn"),K=o("#normBtn"),J=o("#muteBtn"),ge=o("#volDown"),_e=o("#volUp"),we=o("#volNum"),de=o("#addStreamBtn"),loadAndPlayBtn=o("#loadAndPlayBtn"),xe=o("#loadUrlBtn"),Ce=o("#loadFileBtn"),Te=o("#pasteBtn"),ze=o("#exportBtn"),De=o("#clearBtn"),I=o("#fileInput"),C=o("#playlist"),Ne=C.parentElement;let e=[],n=-1,g=!1,v=!0,l=.9,S="",f="",R=0,ee=-1,i=null,ce,j,p,u,d,w,N=0,U=0,A=!1,q=null,Y=0,F=0;const m={save(){const s={playlist:e,currentIndex:n,volLevel:l,mute:t.muted,shuffle:g,norm:v};localStorage.setItem("miniamp.centered.player",JSON.stringify(s))},load(){try{const s=JSON.parse(localStorage.getItem("miniamp.centered.player")||"{}");Array.isArray(s.playlist)&&(e=s.playlist,a()),typeof s.currentIndex=="number"&&s.currentIndex>=0&&s.currentIndex<e.length&&(n=s.currentIndex,z(),S=e[n]?.title||"",b()),s.volLevel!=null&&(l=+s.volLevel),t.muted=!!s.mute,s.shuffle!=null&&(g=!!s.shuffle),s.norm!=null&&(v=!!s.norm),W.classList.toggle("on",g),K.classList.toggle("on",v),G()}catch{}}};m.load();function s(e,t="warn"){be.textContent=e;const s=getComputedStyle(document.documentElement);let n=s.getPropertyValue(`--${t}`).trim();n||(n=t==="ok"?"#44d07b":t==="err"?"#ff5f6f":"#ffc857"),se.style.background=n,se.style.boxShadow=`0 0 9px ${n}`}s("idle","warn");function b(){const e=[S||null,f||null].filter(Boolean).join(" — ")||"—";Q.textContent=e,Q.title=e}function O(){if(i)return;const e=window.AudioContext||window.webkitAudioContext;i=new e,ce=i.createMediaElementSource(t),j=i.createGain(),p=i.createAnalyser(),p.fftSize=2048,p.smoothingTimeConstant=.6,u=i.createDynamicsCompressor(),u.threshold.value=r.limiter,u.knee.value=16,u.ratio.value=12,u.attack.value=.003,u.release.value=.25,d=i.createGain(),w=i.createGain(),j.gain.value=1,d.gain.value=0,w.gain.value=l,ce.connect(j),j.connect(p),p.connect(u),u.connect(d),d.connect(w),w.connect(i.destination),re.textContent="WebAudio: ready",P()}function G(){l=$(l,0,1),we.textContent=Math.round(l*100)+"%",i&&w&&w.gain.setTargetAtTime(l,i.currentTime,.05)}function _(e){l=$(l+e,0,1),G(),m.save()}function ne(){if(!e.length){H(C);return}O(),t.paused?(A=!1,n<0&&(n=0),c(n)):fe()}async function c(o){if(!e[o])return;O(),T(),D(),h(),n=o,z();const c=e[o];if(S=c.title||L(c.url),f="",b(),s("connecting…","warn"),/\.m3u8?(\?|#|$)/i.test(c.url))try{const n=await te(c.url),t=y(n);t.length&&(e.splice(o,1,...t),a(),z())}catch{}const l=e[o]?.url||c.url;try{t.src=l,t.load(),Se(o),await i.resume(),x(0,.01),await t.play(),x(1,r.fadeIn),s("playing","ok"),E(),Ee(l)}catch(e){console.warn("play failed",e),h(),s("autoplay blocked — click Play","warn")}m.save()}function M(){if(!e.length)return;let t=n;g?(t=Math.floor(Math.random()*e.length),t===n&&e.length>1&&(t=(t+1)%e.length)):t=(t+1)%e.length,ae(t)}function ie(){if(!e.length)return;let t=n<=0?e.length-1:n-1;ae(t)}async function ae(e){O(),h();try{x(0,r.fadeOut),await B(r.fadeOut*1e3+40)}catch{}c(e)}async function fe(){O(),h(),x(0,r.fadeOut),await B(r.fadeOut*1e3+40),t.pause(),s("paused","warn"),E()}async function me(){A=!0,T(),D(),O(),h(),x(0,r.fadeOut),await B(r.fadeOut*1e3+40),t.pause(),t.removeAttribute("src"),t.load(),s("stopped","warn"),E()}function x(e,t){if(!i||!d)return;const n=i.currentTime;d.gain.cancelScheduledValues(n),d.gain.setValueAtTime(d.gain.value,n),d.gain.linearRampToValueAtTime(e,n+Math.max(.01,t||0))}function X(e=!1){if(A)return;T(),U++;const t=Math.min(2e4,1e3*Math.pow(2,Math.min(6,U-1)));N=setTimeout(()=>{e?M():n>=0&&c(n)},t)}function T(){clearTimeout(N),N=0,U=0}function E(){le.textContent=t.paused?"▶️":"⏸️"}function P(){if(P._started)return;P._started=!0;const t=new Float32Array(2048);let e=0;function n(){if(!i||!p)return requestAnimationFrame(n);if(v)try{p.getFloatTimeDomainData(t);let n=0;for(let e=0;e<t.length;e++){const s=t[e];n+=s*s}const s=Math.sqrt(n/t.length)||1e-6,o=20*Math.log10(s),a=$(r.targetDb-o,-12,+16);e=oe(e,a,.15),j.gain.setTargetAtTime(Fe(e),i.currentTime,.12),u.threshold.setTargetAtTime(r.limiter,i.currentTime,.2)}catch{}else e=oe(e,0,.12),j.gain.setTargetAtTime(1,i.currentTime,.15);requestAnimationFrame(n)}requestAnimationFrame(n)}function a(){C.innerHTML="",e.forEach((e,t)=>{const n=document.createElement("li");n.dataset.idx=t;const s=document.createElement("div");s.className="num",s.textContent=t+1;const o=document.createElement("div");o.className="title ellipsis",o.textContent=e.title||e.url;const i=document.createElement("div");i.className="actions";const a=V("▲","Move up",()=>Z(t,-1)),r=V("▼","Move down",()=>Z(t,+1)),l=V("✖","Remove",()=>ve(t));i.append(a,r,l),n.append(s,o,i),n.onclick=()=>c(t),C.appendChild(n)}),z(),m.save()}function V(e,t,n){const s=document.createElement("button");return s.className="btn mini",s.textContent=e,s.title=t,s.onclick=e=>{e.stopPropagation(),n()},s}function Z(t,s){const o=t+s;if(o<0||o>=e.length)return;const i=e[t];e[t]=e[o],e[o]=i,n===t?n=o:n===o&&(n=t),a()}function ve(t){e.splice(t,1),n>=e.length&&(n=e.length-1),a()}function z(){Me("#playlist li").forEach(e=>e.classList.remove("active"));const e=document.querySelector(`#playlist li[data-idx="${n}"]`);e&&(e.classList.add("active"),je(e))}function je(e){const t=Ne;if(!t||!e)return;const n=t.getBoundingClientRect(),s=e.getBoundingClientRect(),o=t.scrollTop,i=o+(s.top-n.top),a=Math.max(0,i-(t.clientHeight-e.offsetHeight)/2);ye(t,a,350)}function ye(e,t,n=350){F&&cancelAnimationFrame(F);const s=e.scrollTop,o=t-s;if(Math.abs(o)<6){e.scrollTop=t;return}const a=performance.now(),r=e=>e<.5?4*e*e*e:1-Math.pow(-2*e+2,3)/2;function i(t){const c=Math.min(1,(t-a)/n);e.scrollTop=s+o*r(c),c<1&&(F=requestAnimationFrame(i))}F=requestAnimationFrame(i)}function y(e){const n=[];let t=null;e=(e||"").replace(/^\uFEFF/,"");const s=e.split(/\r?\n/);for(const i of s){const e=i.trim();if(!e||e.startsWith("#EXTM3U"))continue;if(e.startsWith("#EXTINF")){let n=null;const s=e.lastIndexOf(",");s>=0&&s<e.length-1&&(n=e.slice(s+1).trim());const o=e.match(/tvg-name="([^"]+)"/i)||e.match(/radio="([^"]+)"/i)||e.match(/name="([^"]+)"/i);o&&!n&&(n=o[1]),t=n;continue}if(e.startsWith("#"))continue;const o=e,a=t||L(o);n.push({title:a,url:o}),t=null}return n}function L(e){try{const t=new URL(e),n=t.hostname.replace(/^www\./,""),o=t.pathname.split("/").filter(Boolean).pop()||"",s=decodeURIComponent(o).replace(/\.(mp3|aac|ogg|m3u8?)$/i,"");return s?`${n} — ${s}`:n}catch{return e}}async function Oe(e){const t=await fetch(e,{mode:"cors"});if(!t.ok)throw new Error("HTTP "+t.status);return await t.text()}async function te(e){return await Oe(e)}function D(){try{q?.abort()}catch{}q=null,clearTimeout(Y),Y=0}async function Ee(e){k.textContent="CORS: ?";const t=await ke(e).catch(()=>!1);if(t){k.textContent="CORS: ok";return}const n=await Ae(e).catch(()=>!1);k.textContent=n?"CORS: ok":"CORS: blocked"}async function ke(e){D();const i=new AbortController;q=i;let a=!1;const n=await fetch(e,{method:"GET",mode:"cors",headers:{"Icy-MetaData":"1"},signal:i.signal});if(!n.ok)throw new Error("HTTP "+n.status);const s=n.headers,r=s.get("icy-name")||s.get("x-icy-name")||s.get("ice-name");r&&(S=r,b());const o=parseInt(s.get("icy-metaint")||s.get("x-icy-metaint")||"0",10);if(!o||!n.body)throw new Error("No icy-metaint/body");a=!0;const c=n.body.getReader(),l=new TextDecoder("iso-8859-1",{fatal:!1});let t={bytesUntilMeta:o,metaLen:-1,metaOff:0,metaBuf:null};return async function(){try{for(;!0;){const{value:n,done:s}=await c.read();if(s)break;if(!n)continue;let e=0;for(;e<n.length;){if(t.bytesUntilMeta>0){const s=Math.min(t.bytesUntilMeta,n.length-e);if(e+=s,t.bytesUntilMeta-=s,t.bytesUntilMeta>0)continue}if(t.metaLen===-1){if(e>=n.length)break;if(t.metaLen=n[e++]*16,t.metaLen===0){t.bytesUntilMeta=o,t.metaLen=-1;continue}t.metaBuf=new Uint8Array(t.metaLen),t.metaOff=0}const i=t.metaLen-t.metaOff,s=Math.min(i,n.length-e);if(t.metaBuf.set(n.subarray(e,e+s),t.metaOff),t.metaOff+=s,e+=s,t.metaOff>=t.metaLen){const n=l.decode(t.metaBuf).replace(/\0+$/,""),e=n.match(/StreamTitle='([^']*)'/i);if(e){const t=(e[1]||"").trim();t&&t!==f&&(f=t,b())}t.bytesUntilMeta=o,t.metaLen=-1,t.metaOff=0,t.metaBuf=null}}}}catch{}}(),a}async function Ae(e){D();const t=new URL(e),s=t.origin+"/status-json.xsl";async function n(){try{const o=await fetch(s,{mode:"cors"});if(!o.ok)throw new Error("HTTP "+o.status);const c=await o.json(),i=[].concat(c.icestats?.source||[]);if(!i.length)throw new Error("No sources");const r=t.pathname,e=i.find(e=>e.listenurl&&(e.listenurl.includes(r)||e.listenurl.endsWith(r)))||i[0],a=e?.title||e?.yp_currently_playing||(e?.artist&&e?.title?`${e.artist} - ${e.title}`:null);return a&&a!==f&&(f=a,b()),Y=setTimeout(n,12e3),!0}catch{return!1}}const o=await n();return o}function Se(e){h(),ee=e,R=setTimeout(()=>{if(n!==e)return;const o=t.paused||t.currentTime<=0,i=t.readyState<HTMLMediaElement.HAVE_FUTURE_DATA;o&&i&&(s("timeout — skipping","warn"),M())},3e3)}function h(){clearTimeout(R),R=0,ee=-1}le.onclick=()=>{ne()},ue.onclick=()=>{me()},he.onclick=()=>{ie()},pe.onclick=()=>{M()},W.onclick=()=>{g=!g,W.classList.toggle("on",g),m.save()},K.onclick=()=>{v=!v,K.classList.toggle("on",v),m.save()},J.onclick=()=>{t.muted=!t.muted,J.textContent=t.muted?"🔊":"🔇",m.save()},ge.onclick=()=>_(-.1),_e.onclick=()=>_(+.1),de.onclick=()=>{const s=prompt("Stream URL (mp3/aac/ogg):");if(!s)return;const o=prompt("Title (optional):")||L(s);e.push({title:o,url:s}),a(),t.paused&&n<0&&c(0)},loadAndPlayBtn.onclick=()=>{const url = prompt("Stream URL (mp3/aac/ogg):");if (!url) return;const title = prompt("Title (optional):") || L(url);e.push({title, url});a();c(e.length-1);},xe.onclick=async()=>{const o=prompt("Playlist URL (.m3u or .m3u8):");if(!o)return;try{s("loading…","warn");const r=await te(o),i=y(r);if(!i.length)throw new Error("No entries found");e.push(...i),a(),s(`loaded ${i.length} item(s)`,"ok"),t.paused&&n<0&&c(0),k.textContent="CORS: ok"}catch(e){console.error(e),s("failed to load url (CORS?)","err"),k.textContent="CORS: blocked",H(document.body)}},Ce.onclick=()=>I.click(),I.onchange=async()=>{const i=I.files[0];if(!i)return;const r=await i.text(),o=y(r);if(!o.length){s("file had no entries","err");return}e.push(...o),a(),s(`loaded ${o.length} item(s)`,"ok"),t.paused&&n<0&&c(0)},Te.onclick=async()=>{try{const i=await navigator.clipboard.readText(),o=y(i||"");if(!o.length){s("clipboard had no .m3u","err");return}e.push(...o),a(),s(`pasted ${o.length} item(s)`,"ok"),t.paused&&n<0&&c(0)}catch{const i=prompt("Paste .m3u contents:");if(!i)return;const o=y(i);if(!o.length){s("no entries parsed","err");return}e.push(...o),a(),s(`pasted ${o.length} item(s)`,"ok"),t.paused&&n<0&&c(0)}},ze.onclick=()=>{if(!e.length){H(C);return}const n=["#EXTM3U"];e.forEach(e=>{n.push(`#EXTINF:-1,${e.title||""}`),n.push(e.url)});const s=new Blob([n.join(`\n`)],{type:"audio/x-mpegurl"}),t=document.createElement("a");t.href=URL.createObjectURL(s),t.download="playlist.m3u",t.click(),URL.revokeObjectURL(t.href)},De.onclick=()=>{if(!e.length)return;if(!confirm("Clear playlist?"))return;e=[],n=-1,a(),S="",f="",b(),m.save()},t.addEventListener("playing",()=>{h(),s("playing","ok"),T(),E()}),t.addEventListener("canplay",()=>{h()}),t.addEventListener("pause",()=>{A||s("paused","warn"),E()}),t.addEventListener("waiting",()=>s("buffering…","warn")),t.addEventListener("stalled",()=>{s("stalled — retrying…","warn"),X()}),t.addEventListener("suspend",()=>{}),t.addEventListener("ended",()=>{s("ended","warn"),A||X(!0)}),t.addEventListener("error",()=>{s("error — retrying…","err"),X()}),["dragenter","dragover"].forEach(e=>{document.addEventListener(e,e=>{e.preventDefault()})}),document.addEventListener("drop",async o=>{o.preventDefault();const i=o.dataTransfer?.files?.[0];if(!i)return;try{const r=await i.text(),o=y(r);if(!o.length){s("file had no entries","err");return}e.push(...o),a(),s(`loaded ${o.length} item(s)`,"ok"),t.paused&&n<0&&c(0)}catch{s("failed to read file","err")}}),window.addEventListener("keydown",e=>{if(e.target&&/input|textarea|select/i.test(e.target.tagName))return;e.code==="Space"?(e.preventDefault(),ne()):e.key==="ArrowRight"?(e.preventDefault(),M()):e.key==="ArrowLeft"?(e.preventDefault(),ie()):e.key==="ArrowUp"?(e.preventDefault(),_(+.1)):e.key==="ArrowDown"?(e.preventDefault(),_(-.1)):e.key==="+"?(e.preventDefault(),_(+.1)):e.key==="-"&&(e.preventDefault(),_(-.1))});function Fe(e){return Math.pow(10,e/20)}function $(e,t,n){return Math.max(t,Math.min(n,e))}function oe(e,t,n){return e+(t-e)*n}function B(e){return new Promise(t=>setTimeout(t,e))}function H(e){const n=e.style.transform;e.style.transition="transform .08s";let t=0;const s=setInterval(()=>{e.style.transform=`translateX(${(t%2?-1:1)*5}px)`,++t>6&&(clearInterval(s),e.style.transform=n)},60)}re.textContent="WebAudio: pending",s("idle","warn"),G()})()</script><!-- Compact-mode toggler script (minimal, non-invasive) --><script>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   CONFIG — reliability tuning
+   ========================================================================= */
+const CFG = {
+  fadeIn: .7, fadeOut: .6, targetDb: -18, limiter: -14,
+  // How long a track is given to actually start producing audio before it's
+  // treated as dead/off-air and skipped. Generous on purpose: slow-but-alive
+  // streams (especially ones behind ICY metadata negotiation) can legitimately
+  // take several seconds to buffer.
+  connectTimeoutMs: 15000,
+  // Once a stream *is* playing, a stall/error gets a couple of quick in-place
+  // reconnect attempts (short backoff) before we give up and call it dead —
+  // that handles brief network blips without abandoning a good station.
+  stallRetryLimit: 3,
+  stallRetryBaseMs: 1200,
+  // Circuit breaker: if this many stations in a row fail within the window,
+  // stop auto-skipping. That pattern usually means the *listener's* connection
+  // is down, not that every station just happened to die at once.
+  maxConsecutiveFailures: 5,
+  failureWindowMs: 30000,
+};
+
+const STORAGE_KEY = "miniamp.centered.player";
+
+/* =========================================================================
+   DOM
+   ========================================================================= */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+const audio = $("#audio");
+const elNowTitle = $("#nowTitle");
+const elStatusDot = $("#statusDot");
+const elStatusText = $("#statusText");
+const elFeatureBadge = $("#featureBadge");
+const elCorsBadge = $("#corsBadge");
+
+const btnPlay = $("#playBtn");
+const btnStop = $("#stopBtn");
+const btnPrev = $("#prevBtn");
+const btnNext = $("#nextBtn");
+const btnShuffle = $("#shuffleBtn");
+const btnNorm = $("#normBtn");
+const btnMute = $("#muteBtn");
+const btnVolDown = $("#volDown");
+const btnVolUp = $("#volUp");
+const volNum = $("#volNum");
+
+const btnAddStream = $("#addStreamBtn");
+const btnLoadAndPlay = $("#loadAndPlayBtn");
+const btnLoadUrl = $("#loadUrlBtn");
+const btnLoadFile = $("#loadFileBtn");
+const btnPaste = $("#pasteBtn");
+const btnExport = $("#exportBtn");
+const btnClear = $("#clearBtn");
+
+const fileInput = $("#fileInput");
+const playlistEl = $("#playlist");
+const playlistScroller = playlistEl.parentElement;
+
+/* =========================================================================
+   STATE
+   ========================================================================= */
+let playlist = [];        // [{title, url}]
+let currentIndex = -1;
+let volume = .9;
+let shuffleOn = false;
+let agcOn = true;
+let manualStop = false;   // true while the user explicitly hit Stop
+let stationName = "";     // ICY station name / playlist title
+let songTitle = "";       // ICY now-playing text
+
+// WebAudio graph
+let actx, srcNode, preGain, analyser, compressor, fadeGain, outGain;
+
+// Connect watchdog: guards against a stream that never starts (dead/off-air).
+let connectWatchdog = null;
+let connectSeq = 0;
+let hasStartedPlaying = false;
+
+// Mid-playback stall retry: guards against a stream that briefly hiccups
+// after it was already playing fine.
+let stallRetryTimer = null;
+let stallRetryCount = 0;
+
+// Circuit breaker for auto-skip.
+let consecutiveFailures = 0;
+let firstFailureTime = 0;
+let autoSkipSuspended = false;
+
+// ICY / Icecast now-playing metadata
+let icyAbort = null;
+let icecastPollTimer = 0;
+
+// Smooth scroll-to-active animation handle
+let scrollRAF = 0;
+
+/* =========================================================================
+   PERSISTENCE
+   ========================================================================= */
+const store = {
+  save() {
+    const s = { playlist, currentIndex, volLevel: volume, mute: audio.muted, shuffle: shuffleOn, norm: agcOn };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+  },
+  load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (Array.isArray(s.playlist)) { playlist = s.playlist; renderPlaylist(); }
+      if (typeof s.currentIndex === "number" && s.currentIndex >= 0 && s.currentIndex < playlist.length) {
+        currentIndex = s.currentIndex;
+        highlightActive();
+        stationName = playlist[currentIndex]?.title || "";
+        updateNowPlaying();
+      }
+      if (s.volLevel != null) volume = +s.volLevel;
+      audio.muted = !!s.mute;
+      if (s.shuffle != null) shuffleOn = !!s.shuffle;
+      if (s.norm != null) agcOn = !!s.norm;
+      btnShuffle.classList.toggle("on", shuffleOn);
+      btnNorm.classList.toggle("on", agcOn);
+      applyVolume();
+    } catch {}
+  }
+};
+
+/* =========================================================================
+   STATUS / NOW PLAYING UI
+   ========================================================================= */
+function setStatus(text, kind = "warn") {
+  elStatusText.textContent = text;
+  const cssVars = getComputedStyle(document.documentElement);
+  let color = cssVars.getPropertyValue(`--${kind}`).trim();
+  if (!color) color = kind === "ok" ? "#44d07b" : kind === "err" ? "#ff5f6f" : "#ffc857";
+  elStatusDot.style.background = color;
+  elStatusDot.style.boxShadow = `0 0 9px ${color}`;
+}
+setStatus("idle", "warn");
+
+function updateNowPlaying() {
+  const text = [stationName || null, songTitle || null].filter(Boolean).join(" — ") || "—";
+  elNowTitle.textContent = text;
+  elNowTitle.title = text;
+}
+
+function updatePlayIcon() {
+  btnPlay.innerHTML = `<svg class=icon><use href="#${audio.paused ? "i-play" : "i-pause"}"/></svg>`;
+}
+
+/* =========================================================================
+   WEB AUDIO GRAPH (gain-ride fades + gentle AGC/limiter)
+   ========================================================================= */
+function ensureAudioGraph() {
+  if (actx) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  actx = new AC();
+  srcNode = actx.createMediaElementSource(audio);
+  preGain = actx.createGain();
+  analyser = actx.createAnalyser();
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = .6;
+  compressor = actx.createDynamicsCompressor();
+  compressor.threshold.value = CFG.limiter;
+  compressor.knee.value = 16;
+  compressor.ratio.value = 12;
+  compressor.attack.value = .003;
+  compressor.release.value = .25;
+  fadeGain = actx.createGain();
+  outGain = actx.createGain();
+  preGain.gain.value = 1;
+  fadeGain.gain.value = 0;
+  outGain.gain.value = volume;
+
+  srcNode.connect(preGain);
+  preGain.connect(analyser);
+  analyser.connect(compressor);
+  compressor.connect(fadeGain);
+  fadeGain.connect(outGain);
+  outGain.connect(actx.destination);
+
+  elFeatureBadge.textContent = "WebAudio: ready";
+  startAgcLoop();
+}
+
+function fadeTo(target, seconds) {
+  if (!actx || !fadeGain) return;
+  const now = actx.currentTime;
+  fadeGain.gain.cancelScheduledValues(now);
+  fadeGain.gain.setValueAtTime(fadeGain.gain.value, now);
+  fadeGain.gain.linearRampToValueAtTime(target, now + Math.max(.01, seconds || 0));
+}
+
+function applyVolume() {
+  volume = clamp(volume, 0, 1);
+  volNum.textContent = Math.round(volume * 100) + "%";
+  if (actx && outGain) outGain.gain.setTargetAtTime(volume, actx.currentTime, .05);
+}
+function nudgeVolume(delta) { volume = clamp(volume + delta, 0, 1); applyVolume(); store.save(); }
+
+function startAgcLoop() {
+  if (startAgcLoop._started) return;
+  startAgcLoop._started = true;
+  const buf = new Float32Array(2048);
+  let smoothedGainDb = 0;
+  function tick() {
+    if (!actx || !analyser) return requestAnimationFrame(tick);
+    if (agcOn) {
+      try {
+        analyser.getFloatTimeDomainData(buf);
+        let sumSq = 0;
+        for (let i = 0; i < buf.length; i++) sumSq += buf[i] * buf[i];
+        const rms = Math.sqrt(sumSq / buf.length) || 1e-6;
+        const currentDb = 20 * Math.log10(rms);
+        const targetGainDb = clamp(CFG.targetDb - currentDb, -12, 16);
+        smoothedGainDb = lerp(smoothedGainDb, targetGainDb, .15);
+        preGain.gain.setTargetAtTime(dbToLinear(smoothedGainDb), actx.currentTime, .12);
+        compressor.threshold.setTargetAtTime(CFG.limiter, actx.currentTime, .2);
+      } catch {}
+    } else {
+      smoothedGainDb = lerp(smoothedGainDb, 0, .12);
+      preGain.gain.setTargetAtTime(1, actx.currentTime, .15);
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* =========================================================================
+   PLAYBACK CORE
+   ========================================================================= */
+function isActuallyPlaying() {
+  return !audio.paused && !audio.ended &&
+    (audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA || audio.currentTime > 0);
+}
+
+function clearConnectWatchdog() {
+  if (connectWatchdog) { clearTimeout(connectWatchdog); connectWatchdog = null; }
+}
+function scheduleConnectWatchdog() {
+  clearConnectWatchdog();
+  const seq = ++connectSeq;
+  connectWatchdog = setTimeout(() => {
+    if (seq !== connectSeq) return;
+    if (!isActuallyPlaying()) {
+      setStatus("timed out — skipping", "warn");
+      handleStreamFailure(true);
+    }
+  }, CFG.connectTimeoutMs);
+}
+
+function clearStallRetry() {
+  if (stallRetryTimer) { clearTimeout(stallRetryTimer); stallRetryTimer = null; }
+}
+
+async function togglePlayPause() {
+  if (autoSkipSuspended) {
+    // Manual retry after the circuit breaker tripped: give the whole thing a
+    // fresh start rather than silently repeating whatever just failed.
+    consecutiveFailures = 0;
+    autoSkipSuspended = false;
+    if (playlist.length) return playIndex(currentIndex >= 0 ? currentIndex : 0);
+  }
+  if (!playlist.length) { shake(playlistEl); return; }
+  ensureAudioGraph();
+  if (audio.paused) {
+    manualStop = false;
+    if (currentIndex < 0) currentIndex = 0;
+    return playIndex(currentIndex);
+  }
+  return pausePlayback();
+}
+
+async function playIndex(index) {
+  if (!playlist[index]) return;
+  ensureAudioGraph();
+  clearConnectWatchdog();
+  clearStallRetry();
+  stopIcyMetadata();
+  manualStop = false;
+  hasStartedPlaying = false;
+  currentIndex = index;
+  highlightActive();
+
+  const entry = playlist[index];
+  stationName = entry.title || deriveTitleFromUrl(entry.url);
+  songTitle = "";
+  updateNowPlaying();
+  setStatus("connecting…", "warn");
+
+  // A dropped-in .m3u URL used as a single "station" sometimes turns out to be
+  // a sub-playlist itself — expand it in place.
+  if (/\.m3u8?(\?|#|$)/i.test(entry.url)) {
+    try {
+      const text = await fetchText(entry.url);
+      const parsed = parseM3U(text);
+      if (parsed.length) { playlist.splice(index, 1, ...parsed); renderPlaylist(); highlightActive(); }
+    } catch {}
+  }
+
+  const url = playlist[index]?.url || entry.url;
+  try {
+    audio.src = url;
+    audio.load();
+    scheduleConnectWatchdog();
+    await actx.resume();
+    fadeTo(0, .01);
+    await audio.play();
+    fadeTo(1, CFG.fadeIn);
+    setStatus("playing", "ok");
+    updatePlayIcon();
+    startIcyMetadata(url);
+  } catch (e) {
+    console.warn("play() failed", e);
+    updatePlayIcon();
+    setStatus("autoplay blocked — click Play", "warn");
+  }
+  store.save();
+}
+
+function playNext(isAutoSkip) {
+  if (!isAutoSkip) { consecutiveFailures = 0; autoSkipSuspended = false; }
+  if (!playlist.length) return;
+  let target;
+  if (shuffleOn) {
+    target = Math.floor(Math.random() * playlist.length);
+    if (target === currentIndex && playlist.length > 1) target = (target + 1) % playlist.length;
+  } else {
+    target = (currentIndex + 1) % playlist.length;
+  }
+  crossTo(target);
+}
+function playPrev(isAutoSkip) {
+  if (!isAutoSkip) { consecutiveFailures = 0; autoSkipSuspended = false; }
+  if (!playlist.length) return;
+  const target = currentIndex <= 0 ? playlist.length - 1 : currentIndex - 1;
+  crossTo(target);
+}
+async function crossTo(index) {
+  ensureAudioGraph();
+  clearConnectWatchdog();
+  clearStallRetry();
+  try { fadeTo(0, CFG.fadeOut); await wait(CFG.fadeOut * 1000 + 40); } catch {}
+  playIndex(index);
+}
+
+async function pausePlayback() {
+  ensureAudioGraph();
+  clearConnectWatchdog();
+  clearStallRetry();
+  fadeTo(0, CFG.fadeOut);
+  await wait(CFG.fadeOut * 1000 + 40);
+  audio.pause();
+  setStatus("paused", "warn");
+  updatePlayIcon();
+}
+
+async function stopPlayback() {
+  manualStop = true;
+  clearConnectWatchdog();
+  clearStallRetry();
+  stopIcyMetadata();
+  ensureAudioGraph();
+  fadeTo(0, CFG.fadeOut);
+  await wait(CFG.fadeOut * 1000 + 40);
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  setStatus("stopped", "warn");
+  updatePlayIcon();
+}
+
+/* =========================================================================
+   DEAD LINK / OFF-AIR HANDLING
+   ========================================================================= */
+// Called whenever a track (a) never manages to start within the connect
+// window, (b) errors before ever playing, or (c) exhausts its mid-playback
+// stall retries. Skips forward automatically, but trips a circuit breaker if
+// too many stations fail back-to-back — that's much more likely to be the
+// listener's own connection than an entire playlist being dead at once.
+function handleStreamFailure(isAutoSkip) {
+  clearConnectWatchdog();
+  clearStallRetry();
+  const now = Date.now();
+  if (now - firstFailureTime > CFG.failureWindowMs) { firstFailureTime = now; consecutiveFailures = 0; }
+  consecutiveFailures++;
+
+  if (consecutiveFailures > CFG.maxConsecutiveFailures) {
+    autoSkipSuspended = true;
+    setStatus("can't connect — check your connection", "err");
+    updatePlayIcon();
+    return;
+  }
+
+  if (isAutoSkip && playlist.length > 1) {
+    setStatus("dead link — skipping", "warn");
+    playNext(true);
+  } else {
+    setStatus("error", "err");
+    updatePlayIcon();
+  }
+}
+
+function scheduleStallRetry() {
+  clearStallRetry();
+  if (stallRetryCount >= CFG.stallRetryLimit) {
+    handleStreamFailure(true);
+    return;
+  }
+  const delay = CFG.stallRetryBaseMs * Math.pow(2, stallRetryCount);
+  stallRetryCount++;
+  setStatus(`stalled — retrying (${stallRetryCount}/${CFG.stallRetryLimit})…`, "warn");
+  stallRetryTimer = setTimeout(() => {
+    if (!playlist[currentIndex]) return;
+    const url = playlist[currentIndex].url;
+    scheduleConnectWatchdog();
+    audio.src = url;
+    audio.load();
+    audio.play().catch(() => {});
+  }, delay);
+}
+
+/* =========================================================================
+   PLAYLIST RENDERING / EDITING
+   ========================================================================= */
+function renderPlaylist() {
+  playlistEl.innerHTML = "";
+  playlist.forEach((item, i) => {
+    const li = document.createElement("li");
+    li.dataset.idx = i;
+    const num = document.createElement("div"); num.className = "num"; num.textContent = i + 1;
+    const title = document.createElement("div"); title.className = "title ellipsis"; title.textContent = item.title || item.url;
+    const actions = document.createElement("div"); actions.className = "actions";
+    actions.append(
+      miniBtn("i-chevron-up", "Move up", () => moveItem(i, -1)),
+      miniBtn("i-chevron-down", "Move down", () => moveItem(i, +1)),
+      miniBtn("i-close", "Remove", () => removeItem(i))
+    );
+    li.append(num, title, actions);
+    li.onclick = () => playIndex(i);
+    playlistEl.appendChild(li);
+  });
+  highlightActive();
+  store.save();
+}
+function miniBtn(iconId, title, onClick) {
+  const b = document.createElement("button");
+  b.className = "btn mini";
+  b.innerHTML = `<svg class=icon><use href="#${iconId}"/></svg>`;
+  b.title = title;
+  b.onclick = (e) => { e.stopPropagation(); onClick(); };
+  return b;
+}
+function moveItem(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= playlist.length) return;
+  [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+  if (currentIndex === i) currentIndex = j;
+  else if (currentIndex === j) currentIndex = i;
+  renderPlaylist();
+}
+function removeItem(i) {
+  playlist.splice(i, 1);
+  if (currentIndex >= playlist.length) currentIndex = playlist.length - 1;
+  renderPlaylist();
+}
+function highlightActive() {
+  $$("#playlist li").forEach((li) => li.classList.remove("active"));
+  const li = document.querySelector(`#playlist li[data-idx="${currentIndex}"]`);
+  if (li) { li.classList.add("active"); scrollToItem(li); }
+}
+function scrollToItem(li) {
+  const box = playlistScroller;
+  if (!box || !li) return;
+  const boxRect = box.getBoundingClientRect();
+  const liRect = li.getBoundingClientRect();
+  const startTop = box.scrollTop;
+  const targetTop = startTop + (liRect.top - boxRect.top) - (box.clientHeight - li.offsetHeight) / 2;
+  animateScroll(box, Math.max(0, targetTop), 350);
+}
+function animateScroll(el, target, duration = 350) {
+  if (scrollRAF) cancelAnimationFrame(scrollRAF);
+  const start = el.scrollTop;
+  const delta = target - start;
+  if (Math.abs(delta) < 6) { el.scrollTop = target; return; }
+  const t0 = performance.now();
+  const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  function step(now) {
+    const p = Math.min(1, (now - t0) / duration);
+    el.scrollTop = start + delta * ease(p);
+    if (p < 1) scrollRAF = requestAnimationFrame(step);
+  }
+  scrollRAF = requestAnimationFrame(step);
+}
+
+/* =========================================================================
+   M3U PARSING / IMPORT / EXPORT
+   ========================================================================= */
+function parseM3U(text) {
+  const out = [];
+  let pendingTitle = null;
+  text = (text || "").replace(/^\uFEFF/, "");
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#EXTM3U")) continue;
+    if (line.startsWith("#EXTINF")) {
+      let title = null;
+      const comma = line.lastIndexOf(",");
+      if (comma >= 0 && comma < line.length - 1) title = line.slice(comma + 1).trim();
+      const nameAttr = line.match(/tvg-name="([^"]+)"/i) || line.match(/radio="([^"]+)"/i) || line.match(/name="([^"]+)"/i);
+      if (nameAttr && !title) title = nameAttr[1];
+      pendingTitle = title;
+      continue;
+    }
+    if (line.startsWith("#")) continue;
+    out.push({ title: pendingTitle || deriveTitleFromUrl(line), url: line });
+    pendingTitle = null;
+  }
+  return out;
+}
+function deriveTitleFromUrl(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+    const last = u.pathname.split("/").filter(Boolean).pop() || "";
+    const clean = decodeURIComponent(last).replace(/\.(mp3|aac|ogg|m3u8?)$/i, "");
+    return clean ? `${host} — ${clean}` : host;
+  } catch { return url; }
+}
+async function fetchText(url) {
+  const res = await fetch(url, { mode: "cors" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return await res.text();
+}
+
+btnAddStream.onclick = () => {
+  const url = prompt("Stream URL (mp3/aac/ogg):");
+  if (!url) return;
+  const title = prompt("Title (optional):") || deriveTitleFromUrl(url);
+  playlist.push({ title, url });
+  renderPlaylist();
+  if (audio.paused && currentIndex < 0) playIndex(0);
+};
+btnLoadAndPlay.onclick = () => {
+  const url = prompt("Stream URL (mp3/aac/ogg):");
+  if (!url) return;
+  const title = prompt("Title (optional):") || deriveTitleFromUrl(url);
+  playlist.push({ title, url });
+  renderPlaylist();
+  playIndex(playlist.length - 1);
+};
+btnLoadUrl.onclick = async () => {
+  const url = prompt("Playlist URL (.m3u or .m3u8):");
+  if (!url) return;
+  try {
+    setStatus("loading…", "warn");
+    const text = await fetchText(url);
+    const items = parseM3U(text);
+    if (!items.length) throw new Error("No entries found");
+    playlist.push(...items);
+    renderPlaylist();
+    setStatus(`loaded ${items.length} item(s)`, "ok");
+    if (audio.paused && currentIndex < 0) playIndex(0);
+    elCorsBadge.textContent = "CORS: ok";
+  } catch (e) {
+    console.error(e);
+    setStatus("failed to load url (CORS?)", "err");
+    elCorsBadge.textContent = "CORS: blocked";
+    shake(document.body);
+  }
+};
+btnLoadFile.onclick = () => fileInput.click();
+fileInput.onchange = async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const items = parseM3U(text);
+  if (!items.length) { setStatus("file had no entries", "err"); return; }
+  playlist.push(...items);
+  renderPlaylist();
+  setStatus(`loaded ${items.length} item(s)`, "ok");
+  if (audio.paused && currentIndex < 0) playIndex(0);
+};
+btnPaste.onclick = async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    const items = parseM3U(text || "");
+    if (!items.length) { setStatus("clipboard had no .m3u", "err"); return; }
+    playlist.push(...items);
+    renderPlaylist();
+    setStatus(`pasted ${items.length} item(s)`, "ok");
+    if (audio.paused && currentIndex < 0) playIndex(0);
+  } catch {
+    const text = prompt("Paste .m3u contents:");
+    if (!text) return;
+    const items = parseM3U(text);
+    if (!items.length) { setStatus("no entries parsed", "err"); return; }
+    playlist.push(...items);
+    renderPlaylist();
+    setStatus(`pasted ${items.length} item(s)`, "ok");
+    if (audio.paused && currentIndex < 0) playIndex(0);
+  }
+};
+btnExport.onclick = () => {
+  if (!playlist.length) { shake(playlistEl); return; }
+  const lines = ["#EXTM3U"];
+  playlist.forEach((item) => { lines.push(`#EXTINF:-1,${item.title || ""}`); lines.push(item.url); });
+  const blob = new Blob([lines.join("\n")], { type: "audio/x-mpegurl" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "playlist.m3u";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+btnClear.onclick = () => {
+  if (!playlist.length) return;
+  if (!confirm("Clear playlist?")) return;
+  playlist = []; currentIndex = -1;
+  renderPlaylist();
+  stationName = ""; songTitle = "";
+  updateNowPlaying();
+  store.save();
+};
+
+/* =========================================================================
+   ICY / ICECAST NOW-PLAYING METADATA
+   ========================================================================= */
+function stopIcyMetadata() {
+  try { icyAbort?.abort(); } catch {}
+  icyAbort = null;
+  clearTimeout(icecastPollTimer);
+  icecastPollTimer = 0;
+}
+async function startIcyMetadata(url) {
+  elCorsBadge.textContent = "CORS: ?";
+  const ok1 = await readIcyStream(url).catch(() => false);
+  if (ok1) { elCorsBadge.textContent = "CORS: ok"; return; }
+  const ok2 = await pollIcecastStatus(url).catch(() => false);
+  elCorsBadge.textContent = ok2 ? "CORS: ok" : "CORS: blocked";
+}
+async function readIcyStream(url) {
+  stopIcyMetadata();
+  const controller = new AbortController();
+  icyAbort = controller;
+  const res = await fetch(url, { method: "GET", mode: "cors", headers: { "Icy-MetaData": "1" }, signal: controller.signal });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const headers = res.headers;
+  const name = headers.get("icy-name") || headers.get("x-icy-name") || headers.get("ice-name");
+  if (name) { stationName = name; updateNowPlaying(); }
+  const metaint = parseInt(headers.get("icy-metaint") || headers.get("x-icy-metaint") || "0", 10);
+  if (!metaint || !res.body) throw new Error("No icy-metaint/body");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("iso-8859-1", { fatal: false });
+  let bytesUntilMeta = metaint, metaLen = -1, metaOff = 0, metaBuf = null;
+
+  (async function pump() {
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (!value) continue;
+        let i = 0;
+        while (i < value.length) {
+          if (bytesUntilMeta > 0) {
+            const take = Math.min(bytesUntilMeta, value.length - i);
+            i += take; bytesUntilMeta -= take;
+            if (bytesUntilMeta > 0) continue;
+          }
+          if (metaLen === -1) {
+            if (i >= value.length) break;
+            metaLen = value[i++] * 16;
+            if (metaLen === 0) { bytesUntilMeta = metaint; metaLen = -1; continue; }
+            metaBuf = new Uint8Array(metaLen); metaOff = 0;
+          }
+          const need = metaLen - metaOff;
+          const take = Math.min(need, value.length - i);
+          metaBuf.set(value.subarray(i, i + take), metaOff);
+          metaOff += take; i += take;
+          if (metaOff >= metaLen) {
+            const text = decoder.decode(metaBuf).replace(/\0+$/, "");
+            const m = text.match(/StreamTitle='([^']*)'/i);
+            if (m) { const t = (m[1] || "").trim(); if (t && t !== songTitle) { songTitle = t; updateNowPlaying(); } }
+            bytesUntilMeta = metaint; metaLen = -1; metaOff = 0; metaBuf = null;
+          }
+        }
+      }
+    } catch {}
+  })();
+  return true;
+}
+async function pollIcecastStatus(url) {
+  stopIcyMetadata();
+  const u = new URL(url);
+  const statusUrl = u.origin + "/status-json.xsl";
+  async function poll() {
+    try {
+      const res = await fetch(statusUrl, { mode: "cors" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
+      const sources = [].concat(json.icestats?.source || []);
+      if (!sources.length) throw new Error("No sources");
+      const path = u.pathname;
+      const src = sources.find((s) => s.listenurl && (s.listenurl.includes(path) || s.listenurl.endsWith(path))) || sources[0];
+      const title = src?.title || src?.yp_currently_playing || (src?.artist && src?.title ? `${src.artist} - ${src.title}` : null);
+      if (title && title !== songTitle) { songTitle = title; updateNowPlaying(); }
+      icecastPollTimer = setTimeout(poll, 12000);
+      return true;
+    } catch { return false; }
+  }
+  return await poll();
+}
+
+/* =========================================================================
+   AUDIO ELEMENT EVENTS
+   ========================================================================= */
+audio.addEventListener("playing", () => {
+  hasStartedPlaying = true;
+  clearConnectWatchdog();
+  clearStallRetry();
+  stallRetryCount = 0;
+  consecutiveFailures = 0;
+  autoSkipSuspended = false;
+  setStatus("playing", "ok");
+  updatePlayIcon();
+});
+audio.addEventListener("canplay", () => clearConnectWatchdog());
+audio.addEventListener("pause", () => { if (!manualStop) updatePlayIcon(); });
+audio.addEventListener("waiting", () => setStatus("buffering…", "warn"));
+audio.addEventListener("stalled", () => {
+  if (!manualStop) scheduleStallRetry();
+});
+audio.addEventListener("ended", () => {
+  setStatus("ended", "warn");
+  if (!manualStop) playNext(false);
+});
+audio.addEventListener("error", () => {
+  if (manualStop) return;
+  // Never made it to first sound -> definitively dead/off-air, no need to
+  // wait out the rest of the connect window.
+  if (!hasStartedPlaying) { setStatus("error — dead link", "err"); handleStreamFailure(true); }
+  // Was already playing fine -> give it a couple of quick retries first.
+  else { setStatus("error — retrying…", "err"); scheduleStallRetry(); }
+});
+
+/* =========================================================================
+   CONTROLS
+   ========================================================================= */
+btnPlay.onclick = () => togglePlayPause();
+btnStop.onclick = () => stopPlayback();
+btnPrev.onclick = () => playPrev(false);
+btnNext.onclick = () => playNext(false);
+btnShuffle.onclick = () => { shuffleOn = !shuffleOn; btnShuffle.classList.toggle("on", shuffleOn); store.save(); };
+btnNorm.onclick = () => { agcOn = !agcOn; btnNorm.classList.toggle("on", agcOn); store.save(); };
+btnMute.onclick = () => {
+  audio.muted = !audio.muted;
+  btnMute.innerHTML = `<svg class=icon><use href="#${audio.muted ? "i-volume-off" : "i-volume-high"}"/></svg>`;
+  store.save();
+};
+btnVolDown.onclick = () => nudgeVolume(-.1);
+btnVolUp.onclick = () => nudgeVolume(+.1);
+
+document.addEventListener("keydown", (e) => {
+  if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+  if (e.code === "Space") { e.preventDefault(); togglePlayPause(); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); playNext(false); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); playPrev(false); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); nudgeVolume(+.1); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); nudgeVolume(-.1); }
+  else if (e.key === "+") { e.preventDefault(); nudgeVolume(+.1); }
+  else if (e.key === "-") { e.preventDefault(); nudgeVolume(-.1); }
+});
+
+["dragenter", "dragover"].forEach((evt) => document.addEventListener(evt, (e) => e.preventDefault()));
+document.addEventListener("drop", async (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer?.files?.[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const items = parseM3U(text);
+    if (!items.length) { setStatus("file had no entries", "err"); return; }
+    playlist.push(...items);
+    renderPlaylist();
+    setStatus(`loaded ${items.length} item(s)`, "ok");
+    if (audio.paused && currentIndex < 0) playIndex(0);
+  } catch { setStatus("failed to read file", "err"); }
+});
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+function dbToLinear(db) { return Math.pow(10, db / 20); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+function shake(el) {
+  const original = el.style.transform;
+  el.style.transition = "transform .08s";
+  let n = 0;
+  const id = setInterval(() => {
+    el.style.transform = `translateX(${(n % 2 ? -1 : 1) * 5}px)`;
+    if (++n > 6) { clearInterval(id); el.style.transform = original; }
+  }, 60);
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+elFeatureBadge.textContent = "WebAudio: pending";
+setStatus("idle", "warn");
+store.load();
+applyVolume();
+btnMute.innerHTML = `<svg class=icon><use href="#${audio.muted ? "i-volume-off" : "i-volume-high"}"/></svg>`;
+updatePlayIcon();
+
+})();
+</script>
+
+<!-- Compact-mode toggler (unchanged) -->
+<script>
 (function(){
   const APP = document.querySelector('.app');
   if (!APP) return;
-  const THRESHOLD = 520; // pixels — change if you prefer
+  const THRESHOLD = 520;
   function updateCompact(){
     const w = Math.min(window.innerWidth, document.documentElement.clientWidth);
     APP.classList.toggle('compact', w <= THRESHOLD);
   }
-  // initial
   updateCompact();
-  // debounce resize/orientation events slightly
   let rt=0;
   window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(updateCompact,120); });
   window.addEventListener('orientationchange', ()=> setTimeout(updateCompact,200) );
 })();
-</script></html>
+</script>
+</html>
