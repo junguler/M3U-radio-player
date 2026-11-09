@@ -1,6 +1,7 @@
 <!doctype html><html lang=en>
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>(function(){var t="concrete";try{if(localStorage.getItem("miniamp.theme")==="classic")t="classic"}catch(e){}document.documentElement.setAttribute("data-theme",t)})()</script>
 <title>MiniAmp — Web Radio (Compact)</title>
 <style>
 :root{--bg:#0e1015;--deck:#191c23;--panel:#1a1d26;--panel2:#222634;--txt:#e6eaf6;--muted:#9aa6be;--accent:#6ccff6;--accent2:#9a77ff;--ok:#44d07b;--warn:#ffc857;--err:#ff5f6f;--led:#92ff9a}
@@ -63,6 +64,89 @@ ul#playlist{list-style:none;margin:0;padding:0}
 .app.compact #playlist li{padding:6px 8px;font-size:14px;border-radius:8px}
 .app.compact .hint{padding:6px;font-size:12px}
 .app.compact .controls .optional{display:none}
+
+/* =========================================================================
+   THEMES
+   Default = "Concrete Signal" (data-theme="concrete", set before first paint).
+   "Classic" is the original MiniAmp look: data-theme="classic" - every rule
+   above this block is the classic look, left exactly as it was.
+   Switch with the palette button in the title bar; the choice is remembered.
+   ========================================================================= */
+html[data-theme="concrete"] {
+  --concrete:#2b2b2b;--panel:#1a1a1a;--line:#e6e6e6;--ink:#000;--text:#fff;--cmuted:#bdbdbd;
+  --orange:#ff6a1a;--pink:#ff4fa3;--violet:#a77bff;--green:#3ddc84;--yellow:#ffd100;--red:#ff3b30;--blue:#3d8bff;
+  --bw:4px;--bws:3px;
+  --mono:ui-monospace,Consolas,"Courier New",monospace;
+  /* status colours used by setStatus() */
+  --ok:#3ddc84;--warn:#ff6a1a;--err:#ff3b30;
+}
+html[data-theme="concrete"] body{background:var(--concrete);font-family:var(--mono);color:var(--text)}
+html[data-theme="concrete"] :focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+html[data-theme="concrete"] .deck :focus-visible{outline-color:#000}
+html[data-theme="concrete"] .app{background:var(--panel);border:var(--bw) solid var(--line);box-shadow:10px 10px 0 var(--ink);padding:0;gap:0}
+
+/* title bar = the yellow banner */
+html[data-theme="concrete"] .app .deck,html[data-theme="concrete"] .app.compact .deck{background:var(--yellow);border:0;border-bottom:var(--bw) solid var(--ink);border-radius:0;box-shadow:none;padding:8px 12px;gap:10px}
+html[data-theme="concrete"] .app .status-dot{width:16px;height:16px;border-radius:0;border:var(--bws) solid var(--ink);box-shadow:none!important}
+html[data-theme="concrete"] .app .deck .title,html[data-theme="concrete"] .app.compact .deck .title{background:var(--ink);color:var(--text);border:var(--bws) solid var(--ink);border-radius:0;box-shadow:none;font-weight:900;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:6px 10px}
+html[data-theme="concrete"] .app .badge{background:var(--ink);color:var(--text);border:var(--bws) solid var(--ink);border-radius:0;font-weight:800;font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+html[data-theme="concrete"] .app .hint .badge{border-color:var(--line)}
+
+/* controls */
+html[data-theme="concrete"] .app .controls,html[data-theme="concrete"] .app.compact .controls{background:var(--panel);border:0;border-bottom:var(--bw) solid var(--line);border-radius:0;padding:10px 12px;gap:8px}
+html[data-theme="concrete"] .app .sep,html[data-theme="concrete"] .app.compact .sep{width:4px;height:26px;margin:0 4px;background:var(--line);border-radius:0}
+html[data-theme="concrete"] .app .btn,html[data-theme="concrete"] .app.compact .btn{--cb:var(--orange);width:40px;height:38px;min-width:40px;padding:0;border:var(--bws) solid var(--ink);border-radius:0;background:var(--cb);color:var(--ink);box-shadow:3px 3px 0 var(--text);transition:none;font-weight:900}
+html[data-theme="concrete"] .app .btn.small,html[data-theme="concrete"] .app.compact .btn.small,html[data-theme="concrete"] .app .volbox .btn.small{width:34px;height:34px;min-width:34px;padding:0}
+html[data-theme="concrete"] .app .btn:hover{filter:brightness(1.08);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--text)}
+html[data-theme="concrete"] .app .btn:active{transform:translate(3px,3px);box-shadow:none}
+html[data-theme="concrete"] .app .deck .btn{box-shadow:3px 3px 0 var(--ink)}
+html[data-theme="concrete"] .app .deck .btn:hover{box-shadow:4px 4px 0 var(--ink)}
+html[data-theme="concrete"] .app .deck .btn:active{box-shadow:none}
+html[data-theme="concrete"] .app .btn .icon{filter:none}
+html[data-theme="concrete"] #prevBtn,html[data-theme="concrete"] #nextBtn{--cb:var(--blue)}
+html[data-theme="concrete"] #playBtn{--cb:var(--green)}
+html[data-theme="concrete"] #stopBtn{--cb:var(--red)}
+html[data-theme="concrete"] #muteBtn{--cb:var(--pink)}
+html[data-theme="concrete"] #volDown,html[data-theme="concrete"] #volUp{--cb:var(--line)}
+html[data-theme="concrete"] #addStreamBtn{--cb:var(--orange)}
+html[data-theme="concrete"] #loadAndPlayBtn{--cb:var(--green)}
+html[data-theme="concrete"] #loadUrlBtn{--cb:var(--pink)}
+html[data-theme="concrete"] #loadFileBtn{--cb:var(--violet)}
+html[data-theme="concrete"] #pasteBtn{--cb:var(--blue)}
+html[data-theme="concrete"] #exportBtn{--cb:var(--yellow)}
+html[data-theme="concrete"] #clearBtn{--cb:var(--red)}
+html[data-theme="concrete"] #themeBtn{--cb:var(--orange)}
+/* toggles: grey when off, role colour when on */
+html[data-theme="concrete"] .app .btn.toggle{--cb:#3a3a3a;color:var(--cmuted)}
+html[data-theme="concrete"] .app .btn.toggle.on{color:var(--ink)}
+html[data-theme="concrete"] #shuffleBtn.on{--cb:var(--violet)}
+html[data-theme="concrete"] #normBtn.on{--cb:var(--blue)}
+html[data-theme="concrete"] .app .volbox{background:var(--ink);border:var(--bws) solid var(--line);border-radius:0;padding:4px 6px;gap:6px}
+html[data-theme="concrete"] .app .volnum{color:var(--text);font-weight:900;font-size:13px;min-width:44px}
+
+/* playlist */
+html[data-theme="concrete"] .app .main{gap:0}
+html[data-theme="concrete"] .app .playlist{flex:1;min-height:0;background:var(--ink);border:0;border-radius:0}
+html[data-theme="concrete"] .app .plist-body{padding:0}
+html[data-theme="concrete"] .app #playlist li,html[data-theme="concrete"] .app.compact #playlist li{padding:8px 12px;font-size:13px;border-radius:0;border-bottom:2px solid #333;color:var(--text)}
+html[data-theme="concrete"] .app #playlist li:hover{background:#222}
+html[data-theme="concrete"] .app #playlist li.active{background:var(--yellow);color:var(--ink)}
+html[data-theme="concrete"] .app #playlist li .num{color:var(--cmuted);font-weight:800}
+html[data-theme="concrete"] .app #playlist li .title{background:none;border:0;border-radius:0;box-shadow:none;padding:0;font-size:inherit;letter-spacing:0;color:var(--text);font-weight:700}
+html[data-theme="concrete"] .app #playlist li.active .num,html[data-theme="concrete"] .app #playlist li.active .title{color:var(--ink)}
+html[data-theme="concrete"] .app #playlist li.dead .title{text-decoration:line-through}
+html[data-theme="concrete"] .app #playlist li .actions .mini{width:26px;height:26px;min-width:26px;box-shadow:2px 2px 0 var(--ink);--cb:var(--line)}
+html[data-theme="concrete"] .app #playlist li .actions .mini .icon{width:12px;height:12px}
+html[data-theme="concrete"] .app #playlist li.active .actions .mini{box-shadow:2px 2px 0 var(--ink)}
+html[data-theme="concrete"] .app .hint,html[data-theme="concrete"] .app.compact .hint{background:var(--panel);border-top:var(--bw) solid var(--line);color:var(--cmuted);padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+@media(min-width:900px){
+  html[data-theme="concrete"] .app{width:min(96vw,980px)}
+  html[data-theme="concrete"] .app .controls{flex-wrap:nowrap}
+  html[data-theme="concrete"] .app .controls .optional{display:flex;gap:8px;flex:none}
+}
+@media(max-width:760px){
+  html[data-theme="concrete"] .app{width:100%;height:100vh;border-width:0;box-shadow:none;padding:0}
+}
 </style>
 
 <!-- SVG sprite: one consistent icon family for every control -->
@@ -86,6 +170,7 @@ ul#playlist{list-style:none;margin:0;padding:0}
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h1.5A4.5 4.5 0 0 0 21 10c0-4-4-7-9-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="10.5" r="1.4" fill="currentColor"/><circle cx="10.5" cy="7" r="1.4" fill="currentColor"/><circle cx="14.5" cy="7" r="1.4" fill="currentColor"/><circle cx="17" cy="10.5" r="1.4" fill="currentColor"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -95,6 +180,7 @@ ul#playlist{list-style:none;margin:0;padding:0}
     <div id=nowTitle class="title ellipsis" title="Now Playing">—</div>
     <span id=statusText class="badge ellipsis">idle</span>
     <span id=featureBadge class="badge ellipsis" title="Audio features">WebAudio: init</span>
+    <button id=themeBtn class="btn small" title="Theme" aria-label="Switch theme"><svg class=icon><use href="#i-palette"/></svg></button>
   </div>
   <div class=controls>
     <button id=prevBtn class=btn title="Previous (←)"><svg class=icon><use href="#i-prev"/></svg></button>
@@ -969,6 +1055,22 @@ updatePlayIcon();
   let rt=0;
   window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(updateCompact,120); });
   window.addEventListener('orientationchange', ()=> setTimeout(updateCompact,200) );
+})();
+</script>
+<!-- Theme switch: Concrete Signal (default) <-> Classic -->
+<script>
+(function(){
+  var KEY="miniamp.theme",root=document.documentElement,btn=document.getElementById("themeBtn");
+  if(!btn) return;
+  function cur(){return root.getAttribute("data-theme")==="classic"?"classic":"concrete";}
+  function label(){var t=cur()==="concrete"?"Concrete Signal":"Classic";btn.title="Theme: "+t+" (click to switch)";}
+  btn.addEventListener("click",function(){
+    var next=cur()==="concrete"?"classic":"concrete";
+    root.setAttribute("data-theme",next);
+    try{localStorage.setItem(KEY,next);}catch(e){}
+    label();
+  });
+  label();
 })();
 </script>
 </html>
